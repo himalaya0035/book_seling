@@ -1,0 +1,117 @@
+.sidebarToggler,.backBtn{
+    color: white;
+}
+.topBar{
+    background: rgb(102,31,178);
+}
+.searchBar h3{
+    color:white;
+    font-weight: 1800;
+}
+
+.bottomPart,.moveToCheckout{
+    position: fixed;
+    bottom: 50px;
+    left: 0;
+    width: 100%;
+    padding:8px;
+    height: 50px;
+    background-color:rgb(102,31,178);
+}
+.moveToCheckout {
+    border-top:1px solid white ;
+    bottom: 0px;
+    text-align: center;
+}
+.bottomPart > div {
+    display: flex;
+    color: white;
+}
+.item,.bookItem{
+    color:  #504f4f;
+    border-bottom: 1px solid gray;
+    padding: 8px;
+    display: flex;
+    align-items:center;
+}
+.bookItem {
+    padding:15px 10px 10px 10px;
+    border: none;
+
+}
+.bookGenres {
+    margin-bottom: 10px;
+}
+.bookDesc{
+    padding: 10px;
+    padding-top: 0px;
+    margin-bottom: 10px;
+}
+.bookDesc p {
+    color: #302f2f;
+    font-size: 0.9em;
+    font-family: 'Poppins';
+}
+.cartBookInfo{
+    width: 100%;
+    padding-left: 15px;
+  padding-right: 4px;
+}
+.cartBookInfo .cartBookName{
+    font-size: 16px;
+    font-weight: bold;
+}
+.cartBookInfo .authorName{
+    font-size: 12px;
+    font-weight: bold;
+}
+.priceRating {
+    margin-top: 8px;
+    margin-bottom: 3px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.options {
+    margin-top: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.qty {
+    display: flex;
+    align-items: center;
+}
+.qty button,.options button{
+    border-radius: 0;
+    border: none;
+    padding:1px 3px;
+    font-weight: bold;
+    background-color: white;
+}
+.qty button i, .options button i,.options button {
+    color: #504f4f;
+}
+.options button{
+    padding: 2px 3px;
+}
+.addToCart button {
+    background-color: #673AB7; color: white; padding: 8px;
+}
+input:focus {
+    outline: none;
+}
+.qty button i {
+    font-weight: lighter;
+}
+button:focus {
+    outline: none;
+}
+.qty input{
+    border: none;
+    border-radius: 0;
+    text-align: center;
+    width: 30px;
+}

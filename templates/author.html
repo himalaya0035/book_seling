@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Author</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/orderProcessing.css">
+    <link rel="stylesheet" href="/static/css/authors.css">
+</head>
+<body>
+<div class="mobileSidebar">
+    <div class="top_section_sidebar">
+        <div class="userInfo">
+            <div class="imgbox4">
+                <a href="#"><img src="/static/images/professor.jpg" alt=""></a>
+            </div>
+
+            <h3>Sergio Marquina</h3>
+
+        </div>
+        <div class="cross">
+            <i class="fa fa-close "></i>
+        </div>
+    </div>
+    <hr>
+    <ul class="sidebarList">
+        <li><a href=""><i class="fa fa-bar-chart"></i> Stats</a></li>
+        <li><a href=""><i class="fa fa-bookmark"></i> Bookmarked</a></li>
+        <li><a href=""><i class="fa fa-file"></i> Drafts</a></li>
+        <li><a href=""><i class="fa fa-plus"></i> Add Topics</a></li>
+    </ul>
+    <hr>
+    <ul class="sidebarList">
+        <li><a href=""><i class="fa fa-user"></i> Accounts</a></li>
+        <li><a href=""><i class="fa fa-lock"></i> Privacy</a></li>
+    </ul>
+    <hr>
+    <ul class="sidebarList">
+        <li><a href=""><i class="fa fa-lightbulb-o"></i> Change mode</a></li>
+        <li><a href=""><i class="fa fa-sign-out"></i> Logout</a></li>
+    </ul>
+</div>
+<div class="contentWrapper">
+    <div class="fixedPosition">
+        <div class="topBar">
+            <a href="#" class="sidebarToggler"><i class="fa fa-bars"
+                                                  style="font-size: 20px; font-weight: 100;"></i></a>
+            <div class="searchBar">
+                <h3 id="author-name">Paulo Coelho</h3>
+            </div>
+            <a href="index.html" class="backBtn"><i class="fa fa-angle-left"
+                                                    style="font-size: 20px; font-weight: 100;"></i></a>
+
+        </div>
+    </div>
+    <div class="authorInfoContainer">
+
+    </div>
+    <div class="sectionBottom rellax" data-rellax-speed="0">
+        <div class="bookDesc" style="margin-bottom: 0;">
+            <div class="shapesHeading" style="transform: translateX(-15px); width: 50%; margin-bottom: 10px;">
+                <h5>About</h5>
+            </div>
+            <p id="author-info">Loading...
+            </p>
+        </div>
+        <div class="booksSection authorBooks" >
+            <div class="headerRow">
+                <h4>Author's Books</h4>
+            </div>
+            <div class="booksHolder" id="author-books">
+
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"
+        integrity="sha512-bZS47S7sPOxkjU/4Bt0zrhEtWx0y0CRkhEp8IckzK+ltifIIE9EMIMTuT/mEzoIMewUINruDBIR/jJnbguonqQ=="
+        crossorigin="anonymous"></script>
+
+<script src="/static/js/main.js"></script>
+<script src="/static/js/rellax.js"></script>
+<script src="/static/js/author.js"></script>
+</body>
+</html>

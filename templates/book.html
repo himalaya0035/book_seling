@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/orderProcessing.css">
+</head>
+<body>
+<div class="mobileSidebar">
+    <div class="top_section_sidebar">
+        <div class="userInfo">
+            <div class="imgbox4">
+                <a href="#"><img src="/static/images/professor.jpg" alt=""></a>
+            </div>
+            <h3>Sergio Marquina</h3>
+
+        </div>
+        <div class="cross">
+            <i class="fa fa-close "></i>
+        </div>
+    </div>
+    <hr>
+    <ul class="sidebarList">
+        <li><a href=""><i class="fa fa-bar-chart"></i> Stats</a></li>
+        <li><a href=""><i class="fa fa-bookmark"></i> Bookmarked</a></li>
+        <li><a href=""><i class="fa fa-file"></i> Drafts</a></li>
+        <li><a href=""><i class="fa fa-plus"></i> Add Topics</a></li>
+    </ul>
+    <hr>
+    <ul class="sidebarList">
+        <li><a href=""><i class="fa fa-user"></i> Accounts</a></li>
+        <li><a href=""><i class="fa fa-lock"></i> Privacy</a></li>
+    </ul>
+    <hr>
+    <ul class="sidebarList">
+        <li><a href=""><i class="fa fa-lightbulb-o"></i> Change mode</a></li>
+        <li><a href=""><i class="fa fa-sign-out"></i> Logout</a></li>
+    </ul>
+</div>
+<div class="contentWrapper">
+    <div class="fixedPosition">
+        <div class="topBar">
+            <a href="#" class="sidebarToggler"><i class="fa fa-bars"
+                                                  style="font-size: 20px; font-weight: 100;"></i></a>
+            <div class="searchBar">
+                <h3>Book</h3>
+            </div>
+            <a href="index.html" class="backBtn"><i class="fa fa-angle-left"
+                                                    style="font-size: 20px; font-weight: 100;"></i></a>
+            <a href="cart.html" class="backBtn"><i class="fa fa-angle-right"
+                                                   style="font-size: 20px; font-weight: 100;"></i></a>
+        </div>
+    </div>
+
+    <div class="bookItem">
+        <div class="coverImgHolder" >
+            <img id="book-cover-image">
+        </div>
+        <div class="cartBookInfo">
+            <p class="cartBookName">The Subtle art of not giving a fuck</p>
+            <p class="authorName" id="author-name-list"></p>
+            <div class="priceRating">
+                <p class="cartBookPrice">Rs 394</p>
+                <p class="cartBookRating"><i class="fa fa-star"></i> 4.5</p>
+            </div>
+            <div class="options bookOptions">
+                <div class="qty addToCart">
+                    <button class="addToCartBtn"><i class="fa fa-cart-plus" style="color: white; font-size: 1.1em;"></i>&nbsp;&nbsp;Add
+                        to cart
+                    </button>
+                </div>
+                <button class="bookmark" style="background-color: #673AB7; color: white; padding: 8px;"><i
+                        class="fa fa-bookmark-o" style="color: white;"></i>&nbsp;&nbsp;Bookmark
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="pillsScroller bookGenres" style="padding-left:10px ;" id="genre-names-list">
+{#        <a href="genre.html" class="pill">Self Help</a>#}
+{#        <a href="genre.html" class="pill">Non Fiction</a>#}
+{#        <a href="genre.html" class="pill">Pyschology</a>#}
+    </div>
+    <div class="bookDesc">
+        <div class="shapesHeading" style="transform: translateX(-15px); width: 50%; margin-bottom: 10px;">
+            <h5>About</h5>
+        </div>
+        <p id="book-info-section">7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrqpib7824gfoui3vbrq</p>
+    </div>
+    <div class="booksSection" id="bestSellers">
+        <div class="headerRow">
+            <h4>Similar Books</h4>
+            <a href="sections.html">More</a>
+        </div>
+        <div class="booksHolder">
+            <div class="homepageBook">
+                <div class="coverImgHolder">
+                    <a href="book.html"><img src="images/book1.jpeg" alt=""></a>
+                </div>
+                <p class="bookName">Rich Dad Poor Dad</p>
+            </div>
+            <div class="homepageBook">
+                <div class="coverImgHolder">
+                    <a href="book.html"><img src="images/book2.jpg" alt=""></a>
+                </div>
+                <p class="bookName">The subtle art of not giving a f*ck</p>
+            </div>
+            <div class="homepageBook">
+                <div class="coverImgHolder">
+                    <a href="book.html"><img src="images/book3.jpg" alt=""></a>
+                </div>
+                <p class="bookName">Animal Farm</p>
+            </div>
+            <div class="homepageBook">
+                <div class="coverImgHolder">
+                    <a href="#"><img src="images/book4.jpg" alt=""></a>
+                </div>
+                <p class="bookName">1984</p>
+            </div>
+            <div class="homepageBook">
+                <div class="coverImgHolder">
+                    <a href="#"><img src="images/book5.jpg" alt=""></a>
+                </div>
+                <p class="bookName">The Power of your subconsious mind</p>
+            </div>
+            <div class="homepageBook">
+                <div class="coverImgHolder">
+                    <a href="#"><img src="images/book9.jpg" alt=""></a>
+                </div>
+                <p class="bookName">The Alchemist</p>
+            </div>
+            <div class="homepageBook">
+                <div class="coverImgHolder">
+                    <a href="#"><img src="images/book6.jpg" alt=""></a>
+                </div>
+                <p class="bookName">Think and Grow Rich</p>
+            </div>
+            <div class="homepageBook">
+                <div class="coverImgHolder">
+                    <a href="#"><img src="images/book7.jpg" alt=""></a>
+                </div>
+                <p class="bookName">Atomic Habits</p>
+            </div>
+            <div class="homepageBook">
+                <div class="coverImgHolder">
+                    <a href="#"><img src="images/book8.jpg" alt=""></a>
+                </div>
+                <p class="bookName">How to win freinds and influence people</p>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"
+        integrity="sha512-bZS47S7sPOxkjU/4Bt0zrhEtWx0y0CRkhEp8IckzK+ltifIIE9EMIMTuT/mEzoIMewUINruDBIR/jJnbguonqQ=="
+        crossorigin="anonymous"></script>
+<script src="/static/js/utils.js"></script>
+<script src="/static/js/main.js"></script>
+<script src="/static/js/book.js"></script>
+</body>
+</html>

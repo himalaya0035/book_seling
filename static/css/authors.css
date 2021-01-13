@@ -1,0 +1,81 @@
+/* Css for authors on the homepage starts here */
+
+.authorsHolder {
+  overflow-x: auto;
+}
+.authorsScroller {
+    display: flex;
+    width: 1203px;
+    padding: 10px;
+    padding-left: 2px;
+    padding-right: 5px;
+}
+.authorBox {
+  margin-right: 15px;
+  padding: 10px;
+  padding-top: 20px;
+  width:120px;height:180px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.6);
+    position: relative;
+}
+.authorBox:last-of-type {
+    margin-right: 0px;
+}
+.homepageAuthorName {
+    font-size: 12px;
+    font-weight: bold;
+    margin-top: 15px;
+    text-align: center;
+}
+.authorImgHolder {
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #808080;
+    box-shadow: 0 0 5px rgba(0,0,0,1);
+}
+.authorImgHolder img ,.authorImgHolder{
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+}   
+.authorImgHolder img {
+    object-fit: cover;
+}
+.viewAuthor {
+    font-size: 12px;
+    display: block;
+    text-decoration: none;
+    font-weight: bold;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* Css for authors on the homepage ends here */
+
+/* css for the author page starts here */
+
+.authorInfoContainer {
+    height: 30vh;
+    width:100%;
+    background:url('../images/author1.jpg');
+    background-position: 0px -90px;
+    background-size: cover;
+    position: sticky;
+    top:53px;
+    transition: opacity 0.25s, visibility 0.25s;
+}
+.nameOfAuthor {
+    padding:8px;
+    font-size: 25px;
+}
+.sectionBottom {
+    background-color:white;
+    z-index: 2;
+}
+.authorBooks {
+    padding-bottom:10px ;
+    margin-top:6px;
+}
+/* css for the author page ends here */
