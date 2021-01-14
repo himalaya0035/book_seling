@@ -12,7 +12,7 @@ def auto_cart_create(sender, instance, created, **kwargs):
 
 
 class CartProduct(models.Model):
-    product = models.ManyToManyField(Book)
+    product = models.ManyToManyField(Entity)
     cart = models.ForeignKey('Cart', on_delete=models.CASCADE)
     # quantity = models.PositiveIntegerField()
     # cart = models.ManyToOneRel('Cart', )
