@@ -65,7 +65,6 @@ class BookSerializer(serializers.ModelSerializer):
         return qs['price']
 
 
-
 class EntitySerializer(serializers.ModelSerializer):
     created_by = serializers.HiddenField(default=serializers.CurrentUserDefault())
     name = serializers.SerializerMethodField("get_name")

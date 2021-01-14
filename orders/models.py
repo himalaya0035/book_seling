@@ -3,7 +3,7 @@ from django.db.models.signals import post_save
 from rest_framework.exceptions import NotFound
 
 from accounts.models import Profile
-from books.models import Entity
+from books.models import Entity, Book
 
 
 def auto_cart_create(sender, instance, created, **kwargs):
@@ -12,9 +12,9 @@ def auto_cart_create(sender, instance, created, **kwargs):
 
 
 class CartProduct(models.Model):
-    product = models.ManyToManyField(Entity)
+    product = models.ManyToManyField(Book)
     cart = models.ForeignKey('Cart', on_delete=models.CASCADE)
-
+    # quantity = models.PositiveIntegerField()
     # cart = models.ManyToOneRel('Cart', )
 
     def is_available_in_stock(self):

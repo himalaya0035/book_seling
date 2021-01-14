@@ -1,20 +1,17 @@
 from rest_framework import serializers
-from .models import Profile, Cart, CartProduct, Entity
+
+from books.models import Entity, Book
+from books.serializers import BookIconSerializer
 
 
 class CartProductSerializer(serializers.ModelSerializer):
+    product_data = serializers.SerializerMethodField()
+    quantity = serializers.IntegerField()
+
     class Meta:
-        model = CartProduct
-        fields = ['product']
+        model = Entity
+        fields = ['id', 'product_data', 'quantity']
 
-
-class CartSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Cart
-        fields = ['cartproduct_set']
-
-
-# class CreateCartProductSerializer(serializers.ModelSerializer):
-#     name = serializers.CharField()
-#     price = serializers.IntegerField()
-
+    def get_product_data(self, instance, *args, **kwargs):
+        product_id = instance.get('product')
+        return BookIconSerializer(Book.objects.get(id=product_id)).data
