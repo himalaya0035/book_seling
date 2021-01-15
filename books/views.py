@@ -11,9 +11,9 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticate
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Book, Author, Genre, Entity
+from .models import Book, Author, Genre
 from .permissions import UpdateDeleteObjectPermission
-from .serializers import AuthorSerializer, BookSerializer, GenreSerializer, EntitySerializer, BookIconSerializer
+from .serializers import AuthorSerializer, BookSerializer, GenreSerializer, BookIconSerializer
 
 
 class BookListView(ListAPIView):
@@ -21,7 +21,7 @@ class BookListView(ListAPIView):
     serializer_class = BookSerializer
 
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    filterset_fields = ['name', 'author__name', 'genre__name', 'entity_set__price', 'entity_set__deal_is_active', 'id',
+    filterset_fields = ['name', 'author__name', 'genre__name', 'ISBN',
                         'author__id']
     search_fields = ['name', 'author__name', 'genre__name']
 
@@ -74,30 +74,6 @@ class GenreListView(ListAPIView):
     serializer_class = GenreSerializer
 
 
-class EntityListView(ListAPIView):
-    queryset = Entity.objects.all()
-    serializer_class = EntitySerializer
-
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    # filter_backends = [filters.SearchFilter]
-    filterset_fields = ['price', 'deal_is_active', 'product']
-
-
-class EntityActionView(RetrieveUpdateDestroyAPIView):
-    queryset = Entity
-    permission_classes = [UpdateDeleteObjectPermission]
-    serializer_class = EntitySerializer
-
-
-class GetEntityByBook(ListAPIView):
-    serializer_class = EntitySerializer
-
-    def get_queryset(self):
-        pk = (self.kwargs.get('pk'))
-        book_object = Book.objects.get(id=pk)
-        return book_object.entity_set
-
-
 class GetRecommendedBooks(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -108,9 +84,12 @@ class GetRecommendedBooks(APIView):
 
         if data is None:
             fav_genres = user.fav_genres.all()
-            data = Book.objects.filter(genre__in=fav_genres, entity_set__deal_is_active=False).annotate(
-                dealCount=Count("entity_set__deal_is_active")).filter(entity_set__deal_is_active=True).order_by(
-                '-dealCount').order_by('-rating')[:12]
+            # data = Book.objects.filter(genre__in=fav_genres, entity_set__deal_is_active=False).annotate(
+            #     dealCount=Count("entity_set__deal_is_active")).filter(entity_set__deal_is_active=True).order_by(
+            #     '-dealCount').order_by('-rating')[:12]
+
+            data = Book.objects.filter(genre__in=fav_genres).order_by('-sold_quantity').filter(
+                all_deals__quantity__gt=0).order_by('-rating')[:12]
 
             data = BookSerializer(data, many=True).data
 
@@ -130,37 +109,37 @@ class TopAuthors(ListAPIView):
     queryset = Author.objects.annotate(booksWritten=Count('book')).order_by('-booksWritten')[:12]
 
 
-class RegisterNewBook(APIView):
-    def post(self, *args, **kwargs):
-        request_data = self.request.data
-
-        ISBN = request_data.get('ISBN')
-        qs = Book.objects.filter(ISBN=ISBN)
-        exists = qs.exists()
-
-        if exists:
-            entity_obj = Entity.objects.create(product=qs.first(), created_by=self.request.user.profile,
-                                               price=request_data.pop('price'))
-
-        else:
-            genre_names = request_data.pop('genre_names')
-
-            serialized = BookSerializer(data={**request_data, ISBN: ISBN})
-
-            if serialized.is_valid(raise_exception=False):
-                book_obj: Book = serialized.save()
-                serialized_entity = EntitySerializer(
-                    data={**request_data, 'product': book_obj.id, 'created_by': self.request.user.profile.id})
-                if serialized_entity.is_valid(raise_exception=True):
-                    entity_obj = serialized_entity.save()
-
-                else:
-                    book_obj.delete()
-                    return Response(status=status.HTTP_400_BAD_REQUEST)
-            else:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        return Response(EntitySerializer(entity_obj).data, status=status.HTTP_201_CREATED)
+# class RegisterNewBook(APIView):
+#     def post(self, *args, **kwargs):
+#         request_data = self.request.data
+#
+#         ISBN = request_data.get('ISBN')
+#         qs = Book.objects.filter(ISBN=ISBN)
+#         exists = qs.exists()
+#
+#         if exists:
+#             entity_obj = Entity.objects.create(product=qs.first(), created_by=self.request.user.profile,
+#                                                price=request_data.pop('price'))
+#
+#         else:
+#             genre_names = request_data.pop('genre_names')
+#
+#             serialized = BookSerializer(data={**request_data, ISBN: ISBN})
+#
+#             if serialized.is_valid(raise_exception=False):
+#                 book_obj: Book = serialized.save()
+#                 serialized_entity = EntitySerializer(
+#                     data={**request_data, 'product': book_obj.id, 'created_by': self.request.user.profile.id})
+#                 if serialized_entity.is_valid(raise_exception=True):
+#                     entity_obj = serialized_entity.save()
+#
+#                 else:
+#                     book_obj.delete()
+#                     return Response(status=status.HTTP_400_BAD_REQUEST)
+#             else:
+#                 return Response(status=status.HTTP_400_BAD_REQUEST)
+#
+#         return Response(EntitySerializer(entity_obj).data, status=status.HTTP_201_CREATED)
 
 
 """
@@ -184,11 +163,8 @@ class RegisterNewBook(APIView):
 #         author = Author.objects.get(id=pk)
 #         return author.book_set
 class GetBooksByAuthors(ListAPIView):
-
     serializer_class = BookIconSerializer
 
     def get_queryset(self):
         pk = self.kwargs.get('pk')
-        print(pk)
         return Book.objects.filter(author=pk)
-

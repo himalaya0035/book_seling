@@ -87,7 +87,8 @@ DATABASES = {
         'NAME': 'Book_Store',
         'USER': 'postgres',
         'HOST': 'localhost',
-        'PASSWORD': '2315211'
+        'PASSWORD': '2315211',
+        'CONN_MAX_AGE': 5
     }
 }
 

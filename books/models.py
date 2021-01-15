@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Sum
 
 from accounts.models import Profile
 
@@ -36,7 +37,7 @@ class Author(models.Model):
 
 
 class Book(models.Model):
-    ISBN = models.CharField(max_length=30, unique=True)
+    ISBN = models.CharField(max_length=30, primary_key=True)
     name = models.CharField(max_length=100)
     author = models.ManyToManyField(Author)
     genre = models.ManyToManyField(Genre)
@@ -45,8 +46,7 @@ class Book(models.Model):
     info = models.CharField(max_length=1000)
     released_date = models.DateTimeField()
     date_created = models.DateTimeField(auto_now_add=True)
-
-    # objects = BookManager()
+    sold_quantity = models.PositiveIntegerField(default=0)
 
     def clean(self):
         if 0 < self.rating > 5 or self.rating < 0:
@@ -63,7 +63,8 @@ class Book(models.Model):
 
     @property
     def available_stock(self):
-        return self.entity_set.filter(deal_is_active=True).count()
+        available_deals = self.all_deals.values('quantity').aggregate(total_deals=Sum('quantity'))
+        return available_deals['total_deals']
 
     @property
     def in_stock(self):
@@ -75,21 +76,14 @@ class Book(models.Model):
     def get_all_authors(self):
         return self.author.values('name')
 
-    def get_sold_stock(self):
-        return self.entity_set.filter(deal_is_active=False).count()
-
-    def get_first_hand_entities(self):
-        return self.entity_set.filter(created_by__user__is_staff=True)
-
-    def get_second_hand_entities(self):
-        return self.entity_set.filter(created_by__user__is_staff=False)
+    # def update
 
 
-class Entity(models.Model):
-    product = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='entity_set')
-    created_by = models.ForeignKey(Profile, on_delete=models.CASCADE)
+class Deal(models.Model):
+    product = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='all_deals')
+    seller = models.ForeignKey(Profile, on_delete=models.CASCADE)
     price = models.PositiveIntegerField()
-    deal_is_active = models.BooleanField(default=True)
+    quantity = models.PositiveIntegerField()
 
     def __str__(self):
         return self.product.name
