@@ -68,7 +68,7 @@ class CartListView(ListCreateAPIView):
 # ...     )
 # ... )
 
-
+# TODO
 class RemoveFromCart(APIView):
     throttle_classes = [MyThrottle]
 
@@ -101,11 +101,9 @@ class BookMarkActionView(APIView):
 
 
 class Checkout(APIView):
-    # TODO update sold quantity in Book model
     # TODO apply promocode feature
+    # TODO remove solf products from others cart
     def post(self, request):
-        promocode = request.data.get('promocode')
-
         cart_products_qs = CartProduct.objects.filter(cart__user=request.user.profile).annotate(
             available_stock=Sum('deal__quantity'))
 
@@ -117,19 +115,13 @@ class Checkout(APIView):
                 'in_stock_products': CartProductSerializer(in_stock, many=True).data,
                 'out_of_stock_products': CartProductSerializer(out_of_stock, many=True).data
             })
-        # promo_obj = get_object_or_404(Promocode, code=promocode)
-        # percentage_off = promo_obj.percentage_off
-        deal_objects = Deal.objects.filter(cartproduct__in=in_stock).update(quantity=F('quantity') - 1)
+        Deal.objects.filter(cartproduct__in=in_stock).update(quantity=F('quantity') - 1)
 
         total_cost = in_stock.aggregate(total_amount=Sum(F('quantity') * F('deal__price')))['total_amount']
-        # total_cost = total_cost - (total_cost * percentage_off / 100)
-        in_stock.update(deal__product__sold_quantity=F('deal__product__sold_quantity') + 1)
 
         order_obj = Order.objects.create(user=request.user, total_amount=total_cost, status='pn')
 
-        # in_stock.save
         OrderedItem.objects.bulk_create(
             [OrderedItem(product_id=i.deal.product_id, qty=i.quantity, order=order_obj) for i in in_stock])
         cart_products_qs.delete()
-
         return Response(status=status.HTTP_201_CREATED)

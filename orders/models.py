@@ -57,6 +57,12 @@ class Order(models.Model):
 
 
 class OrderedItem(models.Model):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.product.sold_quantity += 1
+        self.product.save()
+
     product = models.ForeignKey(Book, on_delete=models.CASCADE)
     qty = models.PositiveIntegerField()
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
@@ -69,4 +75,12 @@ class Promocode(models.Model):
     active = models.BooleanField(default=True)
 
 
+# def auto_sold_qty_updater(sender, instance: OrderedItem, created, **kwargs):
+#     if created:
+#         print('here')
+#         instance.product.sold_quantity += 1
+#         instance.product.save()
+#
+
 post_save.connect(auto_cart_create, sender=Profile)
+# post_save.connect(auto_sold_qty_updater, sender=OrderedItem)
