@@ -102,7 +102,7 @@ class BookMarkActionView(APIView):
 
 class Checkout(APIView):
     # TODO apply promocode feature
-    # TODO remove solf products from others cart
+    # TODO remove sold products from others cart
     def post(self, request):
         cart_products_qs = CartProduct.objects.filter(cart__user=request.user.profile).annotate(
             available_stock=Sum('deal__quantity'))
@@ -115,7 +115,9 @@ class Checkout(APIView):
                 'in_stock_products': CartProductSerializer(in_stock, many=True).data,
                 'out_of_stock_products': CartProductSerializer(out_of_stock, many=True).data
             })
-        Deal.objects.filter(cartproduct__in=in_stock).update(quantity=F('quantity') - 1)
+        deals_qs = Deal.objects.filter(cartproduct__in=in_stock).update(quantity=F('quantity') - 1)
+
+        # CartProduct.objects.filter()
 
         total_cost = in_stock.aggregate(total_amount=Sum(F('quantity') * F('deal__price')))['total_amount']
 

@@ -43,10 +43,9 @@ class BookSerializer(serializers.ModelSerializer):
             for remove_field in remove_fields:
                 self.fields.pop(remove_field)
 
-    author_details = AuthorSerializer(many=True, source='get_all_authors',
-                                      remove_fields=['info', 'created_by', 'image'])
+    author_details = serializers.SerializerMethodField()
+    genre_names = serializers.SerializerMethodField()
 
-    genre_names = GenreSerializer(many=True, source='get_genre_set')
     lowest_price = serializers.SerializerMethodField('get_lowest_price')
 
     class Meta:
@@ -65,6 +64,14 @@ class BookSerializer(serializers.ModelSerializer):
         lowest_price = instance.all_deals.filter(quantity__gt=0).values('price', 'id', 'quantity').order_by(
             'price').first()
         return lowest_price
+
+    def get_genre_names(self, instance: Book, *args, **kwargs):
+        genre_names = instance.genre.all().values_list('name', flat=True)
+        return genre_names
+
+    def get_author_details(self, instance: Book, *args, **kwargs):
+        author_names = instance.author.all().values_list('name', flat=True)
+        return author_names
 
 
 class BookIconSerializer(serializers.ModelSerializer):
