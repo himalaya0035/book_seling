@@ -1,15 +1,15 @@
 from django.conf import settings
 from django.db.models import *
-from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListCreateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import UserRateThrottle
 from rest_framework.views import APIView
 
-from books.models import Book, Deal
+from books.models import Deal, Book
 from .models import CartProduct, Bookmark
+from .models import Order, OrderedItem
 from .serializers import BookMarkListSerializer
 from .serializers import CartProductSerializer
 
@@ -25,19 +25,40 @@ class MyThrottle(UserRateThrottle):
 
 
 #
-class CartListView(ListAPIView):
+class CartListView(ListCreateAPIView):
     if settings.DEBUG:
         throttle_classes = [MyThrottle]
     else:
         throttle_classes = [UserRateThrottle]
 
     permission_classes = [IsAuthenticated]
+    # serializer_class = CartProductSerializer
     serializer_class = CartProductSerializer
 
     def get_queryset(self, *args, **kwargs):
         profile = self.request.user.profile
-        # Book.objects.filter(cartproduct__cart__user=profile).annotate(quantity=Count('product'))
-        return CartProduct.objects.filter(cart__user=profile)
+        qs = CartProduct.objects.filter(cart__user=profile)
+        return qs
+
+    def create(self, request, *args, **kwargs):
+        deal_id = request.data['deal_id']
+        deal_obj = Deal.objects.filter(id=deal_id).values('quantity').first()
+        obj, created = CartProduct.objects.get_or_create(deal_id=deal_id,
+                                                         cart=self.request.user.profile.cart)
+        if not created:
+            obj.quantity += 1
+
+        if obj.quantity > deal_obj['quantity']:
+            return Response(data={
+                'message': 'no more product left in this deal'
+            }, status=status.HTTP_410_GONE)
+
+        obj.save()
+        return Response(
+            data={
+                'message': 'Added to cart'
+            }
+            , status=status.HTTP_201_CREATED)
 
 
 #     """
@@ -46,50 +67,15 @@ class CartListView(ListAPIView):
 # ...         F('product__name'), output_field=CharField()
 # ...     )
 # ... )
-#        qs: QuerySet[CartProduct] = CartProduct.objects.filter(cart__user=profile)
-#         qs.annotate(available_stock=Sum('product__all_deals__quantity'))
-#         qs.filter(available_stock__gte=F('quantity'))
-#     """
-#
-#
-class CartActionView(APIView):
-    permission_classes = [IsAuthenticated]
-    throttle_classes = [MyThrottle]
-
-    def post(self, request, *args, **kwargs):
-        deal_id = request.data.get('deal_id')
-
-        book_id = Deal.objects.get(id=deal_id).product_id
-        obj, created = CartProduct.objects.get_or_create(product_id=book_id, cart=self.request.user.profile.cart)
-        # created = True if object didn't existed
-
-        if not created:
-            obj.quantity = F('quantity') + 1
-            obj.save()
-
-        return Response(status=status.HTTP_201_CREATED)
 
 
 class RemoveFromCart(APIView):
     throttle_classes = [MyThrottle]
 
     def post(self, request, *args, **kwargs):
-        book_id = request.data.get('book_id')
-        qs = CartProduct.objects.filter(cart__user=request.user.profile, product_id=book_id)
-        if not qs.exists():
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        qs.first().delete()
-
-        return Response(status=status.HTTP_200_OK)
-
-
-class Checkout(APIView):
-    def post(self, *args, **kwargs):
-        profile = self.request.user.profile
-        qs: QuerySet[CartProduct] = CartProduct.objects.filter(cart__user=profile)
-        qs.annotate(available_stock=Sum('product__all_deals__quantity'))
-        qs.filter(available_stock__gte=F('quantity'))
+        cart_product_id = request.data.get('cart_product_id')
+        cart_products = CartProduct.objects.get(id=cart_product_id, cart__user=request.user.profile)
+        print(cart_products)
 
 
 class BookMarkActionView(APIView):
@@ -114,8 +100,36 @@ class BookMarkActionView(APIView):
         return Response(BookMarkListSerializer(qs, many=True).data, status=status.HTTP_200_OK)
 
 
-"""
-{
-"book_id":"5165156156121315131"
-}
-"""
+class Checkout(APIView):
+    # TODO update sold quantity in Book model
+    # TODO apply promocode feature
+    def post(self, request):
+        promocode = request.data.get('promocode')
+
+        cart_products_qs = CartProduct.objects.filter(cart__user=request.user.profile).annotate(
+            available_stock=Sum('deal__quantity'))
+
+        in_stock = cart_products_qs.filter(available_stock__gte=F('quantity'))
+        out_of_stock = cart_products_qs.filter(available_stock__lt=F('quantity'))
+        if out_of_stock.exists():
+            return Response(data={
+                'message': 'There was some issue with some of your products',
+                'in_stock_products': CartProductSerializer(in_stock, many=True).data,
+                'out_of_stock_products': CartProductSerializer(out_of_stock, many=True).data
+            })
+        # promo_obj = get_object_or_404(Promocode, code=promocode)
+        # percentage_off = promo_obj.percentage_off
+        deal_objects = Deal.objects.filter(cartproduct__in=in_stock).update(quantity=F('quantity') - 1)
+
+        total_cost = in_stock.aggregate(total_amount=Sum(F('quantity') * F('deal__price')))['total_amount']
+        # total_cost = total_cost - (total_cost * percentage_off / 100)
+        in_stock.update(deal__product__sold_quantity=F('deal__product__sold_quantity') + 1)
+
+        order_obj = Order.objects.create(user=request.user, total_amount=total_cost, status='pn')
+
+        # in_stock.save
+        OrderedItem.objects.bulk_create(
+            [OrderedItem(product_id=i.deal.product_id, qty=i.quantity, order=order_obj) for i in in_stock])
+        cart_products_qs.delete()
+
+        return Response(status=status.HTTP_201_CREATED)

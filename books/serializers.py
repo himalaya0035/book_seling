@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Book, Genre, Author
+from .models import Book, Genre, Author, Deal
 
 
 # todo
@@ -47,13 +47,13 @@ class BookSerializer(serializers.ModelSerializer):
                                       remove_fields=['info', 'created_by', 'image'])
 
     genre_names = GenreSerializer(many=True, source='get_genre_set')
-    price = serializers.SerializerMethodField('get_price')
+    lowest_price = serializers.SerializerMethodField('get_lowest_price')
 
     class Meta:
         model = Book
         fields = ['ISBN', 'name', 'genre_names', 'author_details', 'genre', 'author', 'cover_image',
-                  'released_date', 'info', 'rating', 'price']
-        read_only_fields = ['released_date', 'genre_names', 'author_details', 'price']
+                  'released_date', 'info', 'rating', 'lowest_price']
+        read_only_fields = ['released_date', 'genre_names', 'author_details', 'lowest_price']
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
@@ -61,66 +61,26 @@ class BookSerializer(serializers.ModelSerializer):
         del ret['author']
         return ret
 
-    def get_price(self, instance: Book, *args, **kwargs):
-        lowest_price = instance.all_deals.filter(quantity__gt=0).values('price', 'id').order_by('price').first()
+    def get_lowest_price(self, instance: Book, *args, **kwargs):
+        lowest_price = instance.all_deals.filter(quantity__gt=0).values('price', 'id', 'quantity').order_by(
+            'price').first()
         return lowest_price
 
 
-# class EntitySerializer(serializers.ModelSerializer):
-#     created_by = serializers.HiddenField(default=serializers.CurrentUserDefault())
-#     name = serializers.SerializerMethodField("get_name")
-#
-#     class Meta:
-#         model = Entity
-#         fields = ['id', 'product', 'created_by', 'price', 'name']
-#
-#     def get_name(self, instance: Entity, *args, **kwargs):
-#         name = instance.product.name
-#         return name
-# return self
-
-# def is_valid(self, raise_exception=False):
-#     super(EntitySerializer, self).is_valid(raise_exception)
-#     if self.errors == {
-#         'product': {'ISBN': [ErrorDetail(string='book with this ISBN already exists.', code='unique')]}}:
-#         self._errors.pop('product')
-#         self.was_created = True
-#
-#         return True
-#
-# def create(self, validated_data):
-#     product_data = validated_data.pop('product')
-#
-#     if not self.was_created:
-#
-#         genres = product_data.pop('genre')
-#         authors = product_data.pop('author')
-#         book_obj: Book = Book.objects.create(**product_data)
-#
-#         for genre in genres:
-#             book_obj.genre.add(genre)
-#
-#         for author in authors:
-#             book_obj.author.add(author)
-#
-#         entity_obj = Entity.objects.create(**validated_data, product=book_obj)
-#         book_obj.save()
-#         return entity_obj
-#
-#     elif self.was_created:
-#         book_obj = Book.objects.get(ISBN=validated_data.pop('ISBN'))
-#         entity_obj = Entity.objects.create(**validated_data, product=book_obj)
-#
-#         return entity_obj
-
-
 class BookIconSerializer(serializers.ModelSerializer):
-    price = serializers.SerializerMethodField('get_price')
+    lowest_price = serializers.SerializerMethodField('get_lowest_price')
+
+    def __init__(self, *args, **kwargs):
+        remove_fields = kwargs.pop('remove_fields', None)
+        super(BookIconSerializer, self).__init__(*args, **kwargs)
+        if remove_fields:
+            for remove_field in remove_fields:
+                self.fields.pop(remove_field)
 
     class Meta:
         model = Book
-        fields = ['ISBN', 'cover_image', 'name', 'rating', 'price']
+        fields = ['ISBN', 'cover_image', 'name', 'rating', 'lowest_price']
 
-    def get_price(self, instance: Book, *args, **kwargs):
+    def get_lowest_price(self, instance: Book, *args, **kwargs):
         lowest_price = instance.all_deals.filter(quantity__gt=0).values('price').order_by('price').first()
         return lowest_price['price']

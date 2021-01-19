@@ -1,9 +1,10 @@
+from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
 from django.db.models.signals import post_save
-from rest_framework.exceptions import NotFound
+
 from accounts.models import Profile
-from books.models import Book
+from books.models import Book, Deal
 
 
 def auto_cart_create(sender, instance, created, **kwargs):
@@ -19,36 +20,53 @@ def auto_cart_create(sender, instance, created, **kwargs):
 
 
 class CartProduct(models.Model):
-    product = models.ForeignKey(Book, on_delete=models.CASCADE)
+    deal = models.ForeignKey(Deal, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     cart = models.ForeignKey('Cart', on_delete=models.CASCADE)
 
-    # objects = CartManager()
+    class Meta:
+        unique_together = ('deal', 'cart')
 
     def clean(self):
-        if not self.product.in_stock:
-            raise ObjectDoesNotExist('Out of Stock')
-        if self.product.available_stock < self.quantity:
-            raise ValidationError('Out of Stock')
-
-    # def ac
+        if self.deal.quantity < self.quantity:
+            raise ValidationError('out of stock')
 
 
 class Cart(models.Model):
     user = models.OneToOneField(Profile, on_delete=models.CASCADE)
 
-    # def checkout(self):
-    #     for i in self.cartproduct_set.all():
-    #         active = i.is_available_in_stock()
-    #         if not active:
-    #             raise NotFound(detail='Deal is no longer available')
-    #     else:
-    #         return True
-
 
 class Bookmark(models.Model):
     book = models.ManyToManyField(Book)
     user = models.OneToOneField(Profile, on_delete=models.CASCADE)
+
+
+class Order(models.Model):
+    order_status_choices = (
+        ('pn', 'Pending'),
+        ('ds', 'Dispatched'),
+        ('ou', 'Out For Delivery'),
+        ('dl', 'Delivered')
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    ordered_on = models.DateTimeField(auto_now_add=True)
+    promocode = models.ForeignKey('Promocode', null=True, blank=True, on_delete=models.SET_NULL)
+    total_amount = models.PositiveIntegerField()
+    status = models.CharField(choices=order_status_choices, max_length=2)
+
+
+class OrderedItem(models.Model):
+    product = models.ForeignKey(Book, on_delete=models.CASCADE)
+    qty = models.PositiveIntegerField()
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+
+
+class Promocode(models.Model):
+    code = models.CharField(max_length=8, primary_key=True)
+    min_order_value = models.PositiveIntegerField()
+    percentage_off = models.PositiveIntegerField()
+    active = models.BooleanField(default=True)
 
 
 post_save.connect(auto_cart_create, sender=Profile)

@@ -1,5 +1,3 @@
-import re
-
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -25,7 +23,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'first_name', 'last_name', 'password', 'get_favourite']
+        fields = ['id', 'username', 'first_name', 'last_name', 'password', 'fav_genres']
         # read_only_fields = ['get_favourite']
 
     def to_representation(self, instance):
@@ -99,5 +97,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         if user_data_serialized.is_valid(raise_exception=True):
             user_obj: User = user_data_serialized.save()
             user_obj.profile.address = address
+            user_obj.set_password(user_data['password'])
             user_obj.profile.save()
+            user_obj.save()
             return user_obj.profile

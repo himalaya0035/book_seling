@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'debug_toolbar',
-
+    'django_extensions',
     'rest_framework',
     'django_filters',
 
@@ -84,7 +84,7 @@ WSGI_APPLICATION = 'book_seling.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'Book_Store',
+        'NAME': 'NewBookStore',
         'USER': 'postgres',
         'HOST': 'localhost',
         'PASSWORD': '2315211',
@@ -163,9 +163,7 @@ DEBUG_TOOLBAR_PANELS = [
 ]
 
 INTERNAL_IPS = [
-    # ...
     '127.0.0.1',
-    # ...
 ]
 
 DEFAULT_RENDERER_CLASSES = [
@@ -190,3 +188,25 @@ REST_FRAMEWORK = {
         # 'user_day': '1000/day',
     }
 }
+#
+# LOGGING = {
+#     'version': 1,
+#     'filters': {
+#         'require_debug_true': {
+#             '()': 'django.utils.log.RequireDebugTrue',
+#         }
+#      },
+#      'handlers': {
+#         'console': {
+#             'level': 'DEBUG',
+#             'filters': ['require_debug_true'],
+#             'class': 'logging.StreamHandler',
+#          }
+#     },
+#     'loggers': {
+#         'django.db.backends': {
+#             'level': 'DEBUG',
+#             'handlers': ['console'],
+#         }
+#     }
+# }

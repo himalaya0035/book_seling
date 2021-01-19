@@ -68,7 +68,7 @@ class Book(models.Model):
 
     @property
     def in_stock(self):
-        return self.available_stock > 0
+        return self.available_stock is not None and self.available_stock > 0
 
     def get_genre_set(self):
         return self.genre.all()
