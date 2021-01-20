@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from books.models import Book
 from books.serializers import BookIconSerializer
-from .models import Bookmark, CartProduct
+from .models import Bookmark, ProductOrderOrCart
 
 
 class CartProductSerializer(serializers.ModelSerializer):
@@ -12,17 +12,11 @@ class CartProductSerializer(serializers.ModelSerializer):
     available_stock = serializers.IntegerField(required=False, read_only=True)
 
     class Meta:
-        model = CartProduct
+        model = ProductOrderOrCart
         fields = ['id', 'deal_data', 'quantity', 'deal_id', 'available_stock']
 
-    def get_deal_data(self, instance: CartProduct, *args, **kwargs):
+    def get_deal_data(self, instance: ProductOrderOrCart, *args, **kwargs):
         return BookIconSerializer(instance.deal.product, remove_fields=['lowest_price']).data
-
-    # def run_validators(self, value):
-    #     for validator in copy(self.validators):
-    #         if isinstance(validator, validators.UniqueTogetherValidator):
-    #             self.validators.remove(validator)
-    #     super(CartProductSerializer_2, self).run_validators(value)
 
 
 class BookmarkBookSerializer(serializers.ModelSerializer):

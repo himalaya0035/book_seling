@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.signals import post_save
 
@@ -12,17 +12,11 @@ def auto_cart_create(sender, instance, created, **kwargs):
         Cart.objects.create(user=instance)
 
 
-# class CartManager(models.Manager):
-#     @staticmethod
-#     def check(objects):
-#         for i in objects:
-#             i.clean()
-
-
-class CartProduct(models.Model):
+class ProductOrderOrCart(models.Model):
     deal = models.ForeignKey(Deal, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
-    cart = models.ForeignKey('Cart', on_delete=models.CASCADE)
+    cart = models.ForeignKey('Cart', on_delete=models.CASCADE, null=True, blank=True)
+    order = models.ForeignKey('Order', null=True, on_delete=models.CASCADE, blank=True)
 
     class Meta:
         unique_together = ('deal', 'cart')
@@ -30,6 +24,14 @@ class CartProduct(models.Model):
     def clean(self):
         if self.deal.quantity < self.quantity:
             raise ValidationError('out of stock')
+
+    def save(self, *args, **kwargs):
+        if self.order is None and self.cart is None:
+            raise ValidationError("order and cart both can't be none")
+
+        if self.order and self.cart:
+            raise ValidationError('product cant be in order and cart at same time')
+        super(ProductOrderOrCart, self).save(*args, **kwargs)
 
 
 class Cart(models.Model):
@@ -53,19 +55,7 @@ class Order(models.Model):
     ordered_on = models.DateTimeField(auto_now_add=True)
     promocode = models.ForeignKey('Promocode', null=True, blank=True, on_delete=models.SET_NULL)
     total_amount = models.PositiveIntegerField()
-    status = models.CharField(choices=order_status_choices, max_length=2)
-
-
-class OrderedItem(models.Model):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.product.sold_quantity += 1
-        self.product.save()
-
-    product = models.ForeignKey(Book, on_delete=models.CASCADE)
-    qty = models.PositiveIntegerField()
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    status = models.CharField(choices=order_status_choices, max_length=2, default='pn')
 
 
 class Promocode(models.Model):
@@ -75,12 +65,4 @@ class Promocode(models.Model):
     active = models.BooleanField(default=True)
 
 
-# def auto_sold_qty_updater(sender, instance: OrderedItem, created, **kwargs):
-#     if created:
-#         print('here')
-#         instance.product.sold_quantity += 1
-#         instance.product.save()
-#
-
 post_save.connect(auto_cart_create, sender=Profile)
-# post_save.connect(auto_sold_qty_updater, sender=OrderedItem)

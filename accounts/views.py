@@ -39,8 +39,6 @@ class Register(CreateAPIView):
     serializer_class = ProfileSerializer
     queryset = Profile
     permission_classes = [~IsAuthenticated]
-    # def get_serializer(self, *args, **kwargs):
-    #     return UserSerializer(*args, **kwargs, remove_fields=['username'])
 
 
 class RetrieveProfileView(RetrieveAPIView):

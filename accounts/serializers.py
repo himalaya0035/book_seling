@@ -10,7 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
 
         """
-        :param kwargs: set remove_fields to dynamically remove default fields od serializer
+        :param kwargs: set remove_fields to dynamically remove default fields of serializer
         """
 
         remove_fields = kwargs.pop('remove_fields', None)
@@ -92,7 +92,6 @@ class ProfileSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user_data = validated_data.pop('user')
         address = validated_data.pop('address')
-        # print(address)
         user_data_serialized = UserSerializer(data=user_data)
         if user_data_serialized.is_valid(raise_exception=True):
             user_obj: User = user_data_serialized.save()

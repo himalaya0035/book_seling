@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Book, Genre, Author, Deal
+from .models import Book, Genre, Author
 
 
 # todo
@@ -26,15 +26,8 @@ class GenreSerializer(serializers.ModelSerializer):
         model = Genre
         fields = ['name']
 
-    # def to_representation(self, instance):
-    #     ret = super().to_representation(instance)
-    #     del ret['favourite_of']
-    #     return ret
-
 
 class BookSerializer(serializers.ModelSerializer):
-    # created_by = serializers.HiddenField(default=serializers.CurrentUserDefault())
-    # genre = GenreSerializer(source='get_genre_set', many=True)
 
     def __init__(self, *args, **kwargs):
         remove_fields = kwargs.pop('remove_fields', None)

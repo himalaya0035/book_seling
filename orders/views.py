@@ -7,9 +7,9 @@ from rest_framework.response import Response
 from rest_framework.throttling import UserRateThrottle
 from rest_framework.views import APIView
 
-from books.models import Deal, Book
-from .models import CartProduct, Bookmark
-from .models import Order, OrderedItem
+from books.models import Deal
+from .models import ProductOrderOrCart, Bookmark
+from .models import Order
 from .serializers import BookMarkListSerializer
 from .serializers import CartProductSerializer
 
@@ -24,7 +24,6 @@ class MyThrottle(UserRateThrottle):
         return 30, 60
 
 
-#
 class CartListView(ListCreateAPIView):
     if settings.DEBUG:
         throttle_classes = [MyThrottle]
@@ -32,19 +31,18 @@ class CartListView(ListCreateAPIView):
         throttle_classes = [UserRateThrottle]
 
     permission_classes = [IsAuthenticated]
-    # serializer_class = CartProductSerializer
     serializer_class = CartProductSerializer
 
     def get_queryset(self, *args, **kwargs):
         profile = self.request.user.profile
-        qs = CartProduct.objects.filter(cart__user=profile)
+        qs = ProductOrderOrCart.objects.filter(cart__user=profile)
         return qs
 
     def create(self, request, *args, **kwargs):
         deal_id = request.data['deal_id']
         deal_obj = Deal.objects.filter(id=deal_id).values('quantity').first()
-        obj, created = CartProduct.objects.get_or_create(deal_id=deal_id,
-                                                         cart=self.request.user.profile.cart)
+        obj, created = ProductOrderOrCart.objects.get_or_create(deal_id=deal_id,
+                                                                cart=self.request.user.profile.cart)
         if not created:
             obj.quantity += 1
 
@@ -74,7 +72,7 @@ class RemoveFromCart(APIView):
 
     def post(self, request, *args, **kwargs):
         cart_product_id = request.data.get('cart_product_id')
-        cart_products = CartProduct.objects.get(id=cart_product_id, cart__user=request.user.profile)
+        cart_products = ProductOrderOrCart.objects.get(id=cart_product_id, cart__user=request.user.profile)
         print(cart_products)
 
 
@@ -84,8 +82,7 @@ class BookMarkActionView(APIView):
     def post(self, request):
         bookmark_obj, created = Bookmark.objects.get_or_create(user=request.user.profile)
         book_id = request.data.get('book_id')
-        # obj = get_object_or_404(Book, ISBN=book_id)
-        # bookmark_obj.book.add(obj)
+
         qs = bookmark_obj.book.filter(ISBN=book_id)
         print(qs)
         if qs.exists():
@@ -102,12 +99,11 @@ class BookMarkActionView(APIView):
 
 class Checkout(APIView):
     # TODO apply promocode feature
-    # TODO remove sold products from others cart
     def post(self, request):
-        cart_products_qs = CartProduct.objects.filter(cart__user=request.user.profile).annotate(
+        cart_products_qs = ProductOrderOrCart.objects.filter(cart__user=request.user.profile).annotate(
             available_stock=Sum('deal__quantity'))
 
-        in_stock = cart_products_qs.filter(available_stock__gte=F('quantity'))
+        in_stock = cart_products_qs.filter(available_stock__gte=F('quantity')).select_related('deal', 'deal__product')
         out_of_stock = cart_products_qs.filter(available_stock__lt=F('quantity'))
         if out_of_stock.exists():
             return Response(data={
@@ -115,15 +111,18 @@ class Checkout(APIView):
                 'in_stock_products': CartProductSerializer(in_stock, many=True).data,
                 'out_of_stock_products': CartProductSerializer(out_of_stock, many=True).data
             })
-        deals_qs = Deal.objects.filter(cartproduct__in=in_stock).update(quantity=F('quantity') - 1)
-
-        # CartProduct.objects.filter()
-
         total_cost = in_stock.aggregate(total_amount=Sum(F('quantity') * F('deal__price')))['total_amount']
+        order_obj = Order.objects.create(user=request.user, total_amount=total_cost)
+        in_stock.update(cart=None, order=order_obj)
+        for i in in_stock:
+            i.deal.quantity = F('quantity') - i.quantity
+            i.deal.save()
+            i.deal.product.sold_quantity = F('sold_quantity') + i.quantity
+            i.deal.product.save()
+            i.save()
 
-        order_obj = Order.objects.create(user=request.user, total_amount=total_cost, status='pn')
+        ProductOrderOrCart.objects.annotate(available_stock=Sum('deal__quantity')).filter(
+            available_stock__lt=F('quantity')).update(quantity=ProductOrderOrCart.objects.filter(id=OuterRef('id')).annotate(
+            available_stock=Sum('deal__quantity')).values('available_stock')[:1])
 
-        OrderedItem.objects.bulk_create(
-            [OrderedItem(product_id=i.deal.product_id, qty=i.quantity, order=order_obj) for i in in_stock])
-        cart_products_qs.delete()
         return Response(status=status.HTTP_201_CREATED)

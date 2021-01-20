@@ -15,7 +15,6 @@ def auto_user_delete(sender, instance, *args, **kwargs):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     address = models.TextField()
-    # contact_number = models.
 
     def __str__(self):
         return self.user.username
@@ -23,8 +22,3 @@ class Profile(models.Model):
 
 post_save.connect(auto_prof_create, sender=User)
 post_delete.connect(auto_user_delete, sender=Profile)
-# p1 = Profile.user.get_favourite
-"""
-contact
-
-"""

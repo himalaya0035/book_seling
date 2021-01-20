@@ -76,8 +76,6 @@ class Book(models.Model):
     def get_all_authors(self):
         return self.author.values('name')
 
-    # def update
-
 
 class Deal(models.Model):
     product = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='all_deals')
