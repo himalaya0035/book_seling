@@ -19,7 +19,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
 import debug_toolbar
-
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,14 +27,27 @@ urlpatterns = [
     path('api/accounts/', include('accounts.urls')),
     path('api/cart/', include('orders.urls')),
     path('__debug__/', include(debug_toolbar.urls)),
+
+    path('accounts/reset_password/', auth_views.PasswordResetView.as_view(), name="reset_password"),
+    path('accounts/reset_password_sent/', auth_views.PasswordResetDoneView.as_view(), name="password_reset_done"),
+    path('accounts/reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(),
+         name="password_reset_confirm"),
+    path('accounts/reset_password_complete/', auth_views.PasswordResetCompleteView.as_view(),
+         name="password_reset_complete"),
+
 ]
 
 urlpatterns += [
     path('login', TemplateView.as_view(template_name='login.html')),
     path('register', TemplateView.as_view(template_name='signup.html')),
+    path('', TemplateView.as_view(template_name='index.html')),
     path('author/<int:pk>', TemplateView.as_view(template_name='author.html')),
-    path('book/<int:pk>', TemplateView.as_view(template_name='book.html')),
+    path('book/<slug>', TemplateView.as_view(template_name='book.html')),
+    path('genre/<str>/books', TemplateView.as_view(template_name='genre.html')),
+    path('profile', TemplateView.as_view(template_name='profile.html')),
+    path('bookmark', TemplateView.as_view(template_name='bookmarked.html')),
 ]
+
 
 urlpatterns = urlpatterns + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns = urlpatterns + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

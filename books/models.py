@@ -37,7 +37,7 @@ class Author(models.Model):
 
 
 class Book(models.Model):
-    ISBN = models.CharField(max_length=30, primary_key=True)
+    ISBN = models.CharField(max_length=14, primary_key=True)
     name = models.CharField(max_length=100)
     author = models.ManyToManyField(Author)
     genre = models.ManyToManyField(Genre)

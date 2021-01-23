@@ -11,4 +11,11 @@ class GenreAdmin(admin.ModelAdmin):
         return False
 
 
+class GenreAdmin2(admin.ModelAdmin):
+
+    def has_add_permission(self, request):
+        return True
+
+
 admin.site.register(Genre, GenreAdmin)
+# admin.site.register(Genre, GenreAdmin2)

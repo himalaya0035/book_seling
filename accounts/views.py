@@ -1,7 +1,7 @@
 from django.contrib import auth
 from rest_framework import status
 from rest_framework.generics import CreateAPIView
-from rest_framework.generics import RetrieveAPIView, DestroyAPIView
+from rest_framework.generics import RetrieveAPIView, DestroyAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -41,9 +41,12 @@ class Register(CreateAPIView):
     permission_classes = [~IsAuthenticated]
 
 
-class RetrieveProfileView(RetrieveAPIView):
+class RetrieveProfileView(RetrieveUpdateAPIView):
     serializer_class = ProfileSerializer
-    queryset = Profile
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user.profile
 
 
 class Logout(APIView):

@@ -14,7 +14,7 @@ from .serializers import AuthorSerializer, BookSerializer, GenreSerializer, Book
 
 class BookListView(ListAPIView):
     queryset = Book.objects.all()
-    serializer_class = BookSerializer
+    serializer_class = BookIconSerializer
 
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['name', 'author__name', 'genre__name', 'ISBN',
@@ -74,20 +74,17 @@ class GetRecommendedBooks(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        print('here')
         user = request.user
-
         data = cache.get(f'{user.id}')
 
         if data is None:
             fav_genres = user.fav_genres.all()
-            # data = Book.objects.filter(genre__in=fav_genres, entity_set__deal_is_active=False).annotate(
-            #     dealCount=Count("entity_set__deal_is_active")).filter(entity_set__deal_is_active=True).order_by(
-            #     '-dealCount').order_by('-rating')[:12]
 
-            data = Book.objects.filter(genre__in=fav_genres).order_by('-sold_quantity').filter(
-                all_deals__quantity__gt=0).order_by('-rating')[:12]
-
-            data = BookSerializer(data, many=True).data
+            # data = Book.objects.filter(genre__in=fav_genres).order_by('-sold_quantity').filter(
+            #     all_deals__quantity__gt=0).order_by('-rating')[:9]
+            data = Book.objects.filter(genre__in=fav_genres).order_by('-sold_quantity').order_by('-rating')[:9]
+            data = BookIconSerializer(data, many=True).data
 
             cache.set(f'{user.id}', data, 60 * 60)
             # cache timeout=1hr
@@ -96,13 +93,19 @@ class GetRecommendedBooks(APIView):
 
 
 class BestSellerView(ListAPIView):
-    serializer_class = BookSerializer
-    queryset = Book.objects.order_by('-date_created').order_by('-rating')[:12]
+    serializer_class = BookIconSerializer
+    queryset = Book.objects.order_by('-date_created').order_by('-rating')[:9]
 
 
+# todo
 class TopAuthors(ListAPIView):
-    serializer_class = AuthorSerializer
-    queryset = Author.objects.annotate(booksWritten=Count('book')).order_by('-booksWritten')[:12]
+    # serializer_class = AuthorSerializer
+    queryset = Author.objects.annotate(booksWritten=Count('book')).order_by('-booksWritten')[:9]
+    # Author.objects.order_by('book__rating')
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        data = AuthorSerializer(queryset, many=True, remove_fields=['info']).data
+        return Response(data)
 
 
 # class RegisterNewBook(APIView):
@@ -164,3 +167,13 @@ class GetBooksByAuthors(ListAPIView):
     def get_queryset(self):
         pk = self.kwargs.get('pk')
         return Book.objects.filter(author=pk)
+
+
+class GetNewReleases(ListAPIView):
+    serializer_class = BookIconSerializer
+    queryset = Book.objects.order_by('-date_created')
+
+
+class GetPopularBooks(ListAPIView):
+    serializer_class = BookIconSerializer
+    queryset = Book.objects.all().order_by('-sold_quantity')

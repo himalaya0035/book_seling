@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A BookStore where you can buy and sell books."/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <title>BookStore</title>
+    <link rel="stylesheet" href="/static/css/main.css" />
+    
+    <style>
+        .sidebarToggler,
+        .cartToggler {
+            color: rgb(119, 60, 182);
+        }
+
+        #searchBox {
+            color: white;
+        }
+
+        ::placeholder {
+            color: white;
+        }
+    </style>
+    <style>
+#searchResults {
+  max-width: 720px;
+  width:100%;
+  height: 100vh;
+  /* padding:10px; */
+  position: fixed;
+  top:54px;
+  background-color: white;
+  z-index: 9;
+  left: 0px;
+  display: none;
+
+}
+
+.result {
+  display: flex;
+  align-items: center;
+  /* border:1px solid #808080; */
+  /* border-bottom:1px solid #673AB7 ; */
+  padding:10px;
+  background: white;
+  margin-left: 35px;
+  margin-bottom: 1px;
+  border-left: 0px;
+  border-right: 0px;
+}
+.result:first-of-type {
+    border-top: none;
+}
+.resultImg {
+  margin-right:15px;
+  background: #808080;
+  height: 30px;
+  width: 30px;
+}
+.resultImg img {
+  height: 30px;
+  width: 30px;
+  object-fit: cover;
+  object-position: top;
+  box-shadow: 0px 0px 5px #808080;
+}
+.resultName h4 {
+  font-weight:bold;
+  font-family: 'Poppins';
+  color:rgb(14, 13, 13);
+}
+    </style>
+    <link rel="stylesheet" href="/static/css/authors.css">
+</head>
+
+<body>
+    <div id="loader" style="position:absolute; top:50%; left: 50%; transform: translate(-50%,-50%);">
+        <img src="/static/images/load-gif.gif" alt="" width="150">
+    </div>
+    <div id="loader2" style="position:absolute; top:10%; left: 50%; transform: translateX(-50%); z-index: 200;">
+      <img src="/static/images/load-gif2.gif" alt="" width="80">
+  </div>
+    <div id="rootElement">
+
+    </div>
+    <script type="module" src="/static/js/api handling/constructHomepage.js"></script>
+</body>
+
+</html>

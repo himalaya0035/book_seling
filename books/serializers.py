@@ -49,8 +49,11 @@ class BookSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        del ret['genre']
-        del ret['author']
+        try:
+            del ret['genre']
+            del ret['author']
+        except KeyError as _:
+            pass
         return ret
 
     def get_lowest_price(self, instance: Book, *args, **kwargs):
@@ -63,8 +66,8 @@ class BookSerializer(serializers.ModelSerializer):
         return genre_names
 
     def get_author_details(self, instance: Book, *args, **kwargs):
-        author_names = instance.author.all().values_list('name', flat=True)
-        return author_names
+        author_details = instance.author.all().values('name', 'id')
+        return author_details
 
 
 class BookIconSerializer(serializers.ModelSerializer):
@@ -83,4 +86,6 @@ class BookIconSerializer(serializers.ModelSerializer):
 
     def get_lowest_price(self, instance: Book, *args, **kwargs):
         lowest_price = instance.all_deals.filter(quantity__gt=0).values('price').order_by('price').first()
+        if lowest_price is None:
+            return None
         return lowest_price['price']

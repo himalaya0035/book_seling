@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="/static/css/main.css" />
+    <link rel="stylesheet" href="/static/css/orderProcessing.css" />
+    <link rel="stylesheet" href="/static/css/authors.css" />
+    <link rel="stylesheet" href="/static/css/signup.css" />
+    <style>
+        .sidebarList {
+            margin-top: 0px;
+            margin-bottom: 0px;
+        }
+
+        hr {
+            margin: 0px;
+        }
+
+        h6 {
+            margin: 0px;
+        }
+        .profileCoverImg {
+          height:30vh;
+          background: url('/static/images/profileCover3.jpg');
+          background-size: cover;
+          background-position: top;
+          background-repeat: no-repeat;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loader" style="position:absolute; top:50%; left: 50%; transform: translate(-50%,-50%);">
+        <img src="/static/images/load-gif.gif" alt="" width="150">
+    </div>
+    <div id="rootElement">
+
+    </div>
+    <script type="module" src="/static/js/api handling/constructProfilepage.js"></script>
+    <script src="/static/js/rellax.js"></script>
+</body>
+
+</html>

@@ -23,7 +23,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'first_name', 'last_name', 'password', 'fav_genres']
+        fields = ['id', 'username', 'first_name', 'last_name', 'password', 'fav_genres', 'email']
         # read_only_fields = ['get_favourite']
 
     def to_representation(self, instance):
@@ -83,7 +83,7 @@ class UserLoginSerializer(serializers.Serializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    user = UserSerializer(remove_fields=['fav_genres'])
 
     class Meta:
         model = Profile

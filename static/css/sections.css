@@ -1,0 +1,9 @@
+.books {
+    padding: 8px 15px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+.homepageBook {
+    margin-bottom: 12px;
+}

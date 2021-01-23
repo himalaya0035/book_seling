@@ -1,17 +1,17 @@
 from django.conf import settings
 from django.db.models import *
 from rest_framework import status
-from rest_framework.generics import ListCreateAPIView
+from rest_framework.generics import ListCreateAPIView, get_object_or_404, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import UserRateThrottle
 from rest_framework.views import APIView
 
-from books.models import Deal
-from .models import ProductOrderOrCart, Bookmark
+from books.models import Deal, Book
+from books.serializers import BookSerializer
 from .models import Order
-from .serializers import BookMarkListSerializer
-from .serializers import CartProductSerializer
+from .models import ProductOrderOrCart, Bookmark, Promocode
+from .serializers import CartProductSerializer, DealSerializer
 
 
 class MyThrottle(UserRateThrottle):
@@ -82,36 +82,50 @@ class BookMarkActionView(APIView):
     def post(self, request):
         bookmark_obj, created = Bookmark.objects.get_or_create(user=request.user.profile)
         book_id = request.data.get('book_id')
-
         qs = bookmark_obj.book.filter(ISBN=book_id)
-        print(qs)
         if qs.exists():
             bookmark_obj.book.remove(qs.first())
-            return Response(status=status.HTTP_410_GONE)
+            return Response(status=status.HTTP_200_OK)
         else:
             bookmark_obj.book.add(book_id)
             return Response(status=status.HTTP_201_CREATED)
 
     def get(self, request, *args, **kwargs):
-        qs = Bookmark.objects.filter(user=request.user.profile)
-        return Response(BookMarkListSerializer(qs, many=True).data, status=status.HTTP_200_OK)
+        qs = Book.objects.filter(bookmark__user=request.user.profile)
+        data = BookSerializer(qs, many=True, remove_fields=['genre_names', 'genre', 'author', 'released_date', 'info'])
+        return Response(data=data.data)
+
+
+class GetDealOfBook(ListAPIView):
+    serializer_class = DealSerializer
+
+    def get_queryset(self):
+        book_id = self.kwargs['pk']
+        qs = Deal.objects.filter(product_id=book_id)
+        return qs
 
 
 class Checkout(APIView):
-    # TODO apply promocode feature
     def post(self, request):
         cart_products_qs = ProductOrderOrCart.objects.filter(cart__user=request.user.profile).annotate(
             available_stock=Sum('deal__quantity'))
 
+        promocode = request.data.get('promocode')
+        discount_percent = 0
+        if promocode is not None:
+            promocode_obj = get_object_or_404(Promocode, code=promocode)
+            discount_percent = promocode_obj.percentage_off
+
         in_stock = cart_products_qs.filter(available_stock__gte=F('quantity')).select_related('deal', 'deal__product')
-        out_of_stock = cart_products_qs.filter(available_stock__lt=F('quantity'))
-        if out_of_stock.exists():
-            return Response(data={
-                'message': 'There was some issue with some of your products',
-                'in_stock_products': CartProductSerializer(in_stock, many=True).data,
-                'out_of_stock_products': CartProductSerializer(out_of_stock, many=True).data
-            })
+        # out_of_stock = cart_products_qs.filter(available_stock__lt=F('quantity'))
+        # if out_of_stock.exists():
+        #     return Response(data={
+        #         'message': 'There was some issue with some of your products',
+        #         'in_stock_products': CartProductSerializer(in_stock, many=True).data,
+        #         'out_of_stock_products': CartProductSerializer(out_of_stock, many=True).data
+        #     })
         total_cost = in_stock.aggregate(total_amount=Sum(F('quantity') * F('deal__price')))['total_amount']
+        total_cost = total_cost - (total_cost * discount_percent // 100)
         order_obj = Order.objects.create(user=request.user, total_amount=total_cost)
         in_stock.update(cart=None, order=order_obj)
         for i in in_stock:
@@ -122,7 +136,8 @@ class Checkout(APIView):
             i.save()
 
         ProductOrderOrCart.objects.annotate(available_stock=Sum('deal__quantity')).filter(
-            available_stock__lt=F('quantity')).update(quantity=ProductOrderOrCart.objects.filter(id=OuterRef('id')).annotate(
-            available_stock=Sum('deal__quantity')).values('available_stock')[:1])
+            available_stock__lt=F('quantity')).update(
+            quantity=ProductOrderOrCart.objects.filter(id=OuterRef('id')).annotate(
+                available_stock=Sum('deal__quantity')).values('available_stock')[:1])
 
         return Response(status=status.HTTP_201_CREATED)

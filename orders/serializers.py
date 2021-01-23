@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from books.models import Book
+from books.models import Book, Deal
 from books.serializers import BookIconSerializer
 from .models import Bookmark, ProductOrderOrCart
 
@@ -19,15 +19,22 @@ class CartProductSerializer(serializers.ModelSerializer):
         return BookIconSerializer(instance.deal.product, remove_fields=['lowest_price']).data
 
 
-class BookmarkBookSerializer(serializers.ModelSerializer):
+class BookListSerializer(serializers.ModelSerializer):
+    author_names = serializers.SerializerMethodField()
+    lowest_price = serializers.SerializerMethodField()
+
     class Meta:
         model = Book
-        fields = ['ISBN', 'cover_image', 'rating', 'name']
+        fields = ['ISBN', 'cover_image', 'rating', 'name', 'author_names']
 
 
-class BookMarkListSerializer(serializers.ModelSerializer):
-    book = BookmarkBookSerializer(many=True)
+class DealSerializer(serializers.ModelSerializer):
+    seller = serializers.SerializerMethodField()
 
     class Meta:
-        model = Bookmark
-        fields = ['book']
+        model = Deal
+        fields = ['seller', 'price']
+
+    def get_seller(self, instance: Deal, *args, **kwargs):
+        user = instance.seller.user
+        return {user.username, user.profile.rating}
