@@ -20,6 +20,8 @@ from django.urls import path, include
 from django.views.generic import TemplateView
 import debug_toolbar
 from django.contrib.auth import views as auth_views
+from django.contrib.auth.decorators import login_required
+from .decorators import AnonymousRequired
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -38,16 +40,15 @@ urlpatterns = [
 ]
 
 urlpatterns += [
-    path('login', TemplateView.as_view(template_name='login.html')),
-    path('register', TemplateView.as_view(template_name='signup.html')),
+    path('login', AnonymousRequired(TemplateView.as_view(template_name='login.html'))),
+    path('signup', AnonymousRequired(TemplateView.as_view(template_name='signup.html'))),
     path('', TemplateView.as_view(template_name='index.html')),
     path('author/<int:pk>', TemplateView.as_view(template_name='author.html')),
     path('book/<slug>', TemplateView.as_view(template_name='book.html')),
     path('genre/<str>/books', TemplateView.as_view(template_name='genre.html')),
-    path('profile', TemplateView.as_view(template_name='profile.html')),
-    path('bookmark', TemplateView.as_view(template_name='bookmarked.html')),
+    path('profile', login_required(TemplateView.as_view(template_name='profile.html'))),
+    path('bookmark', login_required(TemplateView.as_view(template_name='bookmarked.html'))),
 ]
-
 
 urlpatterns = urlpatterns + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns = urlpatterns + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from accounts.models import Profile
 from books.models import Book, Deal
 from books.serializers import BookIconSerializer
 from .models import Bookmark, ProductOrderOrCart
@@ -25,7 +26,15 @@ class BookListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Book
-        fields = ['ISBN', 'cover_image', 'rating', 'name', 'author_names']
+        fields = ['ISBN', 'cover_image', 'rating', 'name', 'author_names', 'lowest_price']
+
+    def get_author_names(self, instance: Book, *args, **kwargs):
+        return instance.author.all().values_list('name', flat=True)
+
+    def get_lowest_price(self, instance: Book, *args, **kwargs):
+        lowest_price = instance.all_deals.filter(quantity__gt=0).values('price', 'id', 'quantity').order_by(
+            'price').first()
+        return lowest_price
 
 
 class DealSerializer(serializers.ModelSerializer):
@@ -33,8 +42,8 @@ class DealSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Deal
-        fields = ['seller', 'price']
+        fields = ['id', 'seller', 'price']
 
     def get_seller(self, instance: Deal, *args, **kwargs):
-        user = instance.seller.user
-        return {user.username, user.profile.rating}
+        profile: Profile = instance.seller.user.profile
+        return {'rating': profile.rating, 'firm_name': profile.firm_name}

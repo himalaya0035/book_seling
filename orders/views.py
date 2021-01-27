@@ -1,34 +1,33 @@
-from django.conf import settings
 from django.db.models import *
 from rest_framework import status
 from rest_framework.generics import ListCreateAPIView, get_object_or_404, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.throttling import UserRateThrottle
 from rest_framework.views import APIView
 
 from books.models import Deal, Book
 from books.serializers import BookSerializer
 from .models import Order
-from .models import ProductOrderOrCart, Bookmark, Promocode
+from .models import ProductOrderOrCart, Bookmark, Promocode, ShippingAddress
 from .serializers import CartProductSerializer, DealSerializer
+from .utils import remove_out_of_stock_products
 
 
-class MyThrottle(UserRateThrottle):
-
-    def allow_request(self, request, view):
-        if request.user.is_staff:
-            return True
-
-    def parse_rate(self, rate):
-        return 30, 60
+# class MyThrottle(UserRateThrottle):
+#
+#     def allow_request(self, request, view):
+#         if request.user.is_staff:
+#             return True
+#
+#     def parse_rate(self, rate):
+#         return 30, 60
 
 
 class CartListView(ListCreateAPIView):
-    if settings.DEBUG:
-        throttle_classes = [MyThrottle]
-    else:
-        throttle_classes = [UserRateThrottle]
+    # if settings.DEBUG:
+    #     throttle_classes = [MyThrottle]
+    # else:
+    #     throttle_classes = [UserRateThrottle]
 
     permission_classes = [IsAuthenticated]
     serializer_class = CartProductSerializer
@@ -39,19 +38,21 @@ class CartListView(ListCreateAPIView):
         return qs
 
     def create(self, request, *args, **kwargs):
+        # pro : Profile = self.request.us
         deal_id = request.data['deal_id']
         deal_obj = Deal.objects.filter(id=deal_id).values('quantity').first()
         obj, created = ProductOrderOrCart.objects.get_or_create(deal_id=deal_id,
                                                                 cart=self.request.user.profile.cart)
-        if not created:
-            obj.quantity += 1
 
-        if obj.quantity > deal_obj['quantity']:
+        if obj.quantity + 1 > deal_obj['quantity']:
             return Response(data={
                 'message': 'no more product left in this deal'
             }, status=status.HTTP_410_GONE)
 
+        if not created:
+            obj.quantity += 1
         obj.save()
+
         return Response(
             data={
                 'message': 'Added to cart'
@@ -66,14 +67,30 @@ class CartListView(ListCreateAPIView):
 # ...     )
 # ... )
 
-# TODO
+
 class RemoveFromCart(APIView):
-    throttle_classes = [MyThrottle]
+    # throttle_classes = [MyThrottle]
 
     def post(self, request, *args, **kwargs):
-        cart_product_id = request.data.get('cart_product_id')
-        cart_products = ProductOrderOrCart.objects.get(id=cart_product_id, cart__user=request.user.profile)
-        print(cart_products)
+        deal_id = request.data['deal_id']
+        deal_obj = Deal.objects.filter(id=deal_id).values('quantity').first()
+        obj: ProductOrderOrCart = get_object_or_404(ProductOrderOrCart, deal_id=deal_id)
+
+        if obj.quantity - 1 == 0:
+            obj.delete()
+            return Response(status=status.HTTP_200_OK)
+
+        obj.quantity -= 1
+        obj.save()
+
+        if obj.quantity > deal_obj['quantity']:
+            return Response(data={
+                'message': 'no more product left in this deal'
+            }, status=status.HTTP_410_GONE)
+
+        return Response(data={
+            'removed from cart'
+        }, status=status.HTTP_200_OK)
 
 
 class BookMarkActionView(APIView):
@@ -105,12 +122,30 @@ class GetDealOfBook(ListAPIView):
         return qs
 
 
+"""
+
+request payload
+{
+
+    "promocode":"",
+    "shipping_details":{
+        "name":"",
+        "address":"",
+        "contact_number":"",
+        "email":""
+    }    
+}
+
+"""
+
+
 class Checkout(APIView):
     def post(self, request):
         cart_products_qs = ProductOrderOrCart.objects.filter(cart__user=request.user.profile).annotate(
             available_stock=Sum('deal__quantity'))
 
         promocode = request.data.get('promocode')
+        shipping_details = request.data.get('shipping_details')
         discount_percent = 0
         if promocode is not None:
             promocode_obj = get_object_or_404(Promocode, code=promocode)
@@ -126,18 +161,19 @@ class Checkout(APIView):
         #     })
         total_cost = in_stock.aggregate(total_amount=Sum(F('quantity') * F('deal__price')))['total_amount']
         total_cost = total_cost - (total_cost * discount_percent // 100)
-        order_obj = Order.objects.create(user=request.user, total_amount=total_cost)
+
+        shipping_address_obj, created = ShippingAddress.objects.get_or_create(**shipping_details)
+
+        order_obj = Order.objects.create(user=request.user, total_amount=total_cost,
+                                         shipping_address=shipping_address_obj)
+
         in_stock.update(cart=None, order=order_obj)
-        for i in in_stock:
+        for i in in_stock.iterator():
             i.deal.quantity = F('quantity') - i.quantity
             i.deal.save()
             i.deal.product.sold_quantity = F('sold_quantity') + i.quantity
             i.deal.product.save()
             i.save()
 
-        ProductOrderOrCart.objects.annotate(available_stock=Sum('deal__quantity')).filter(
-            available_stock__lt=F('quantity')).update(
-            quantity=ProductOrderOrCart.objects.filter(id=OuterRef('id')).annotate(
-                available_stock=Sum('deal__quantity')).values('available_stock')[:1])
-
+        remove_out_of_stock_products()
         return Response(status=status.HTTP_201_CREATED)

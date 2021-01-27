@@ -7,5 +7,7 @@ urlpatterns = [
     path('remove-from-cart', views.RemoveFromCart.as_view()),
     path('bookmark', views.BookMarkActionView.as_view()),
     path('checkout', views.Checkout.as_view()),
-    path('<int:pk>', views.GetDealOfBook.as_view())
+    # path('deals/<slug:book_id>', views.GetDealOfBook.as_view()),
+    path('deals/<slug:pk>', views.GetDealOfBook.as_view()),
+
 ]

@@ -24,7 +24,7 @@ function constructBookmarkedList(data) {
                 ${data[i].author_details.map(author_name => `<p class="authorName">${author_name.name}</p>`)}
 
                     <div class="priceRating">
-                        <p class="cartBookPrice">Rs ${data[i].lowest_price}</p>
+                        <p class="cartBookPrice">Rs ${data[i].lowest_price.price}</p>
                         <p class="cartBookRating"><i class="fa fa-star"></i> ${data[i].rating}</p>
                     </div>
                     <div class="options bookOptions">
@@ -69,6 +69,7 @@ async function constructBookmarkPage(urlOne, isAuthenticated) {
     rootElement.innerHTML = sidebarHtml + contentWrapper;
     utility.disableLoader(rootElement, loader);
     utility.loadUtilityJs();
+    utility.manageBookNameLength();
     utility.toggleButton("deleteBookmark", "fa-bookmark", "fa-bookmark-o", "Bookmarked", "Bookmark");
     utility.toggleButton("addToCartBtn", "fa-check", "fa-cart-plus", "Added", "Add to Cart");
 }

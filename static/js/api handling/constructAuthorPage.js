@@ -27,7 +27,7 @@ function constructAuthorDesc(data) {
                 <div class="shapesHeading" style="transform: translateX(-15px); width: 50%; margin-bottom: 10px;">
                     <h5>About</h5>
                 </div>
-                <p>${data.info}</p>
+                <p id="about">${data.info}</p>
             </div>
     
         `
@@ -90,6 +90,7 @@ async function constructAuthorPage(urlone, urlTwo, isAuthenticated) {
     rootElement.innerHTML = mobilesidebarHtml + contentWrapper;
     utility.disableLoader(rootElement, loader);
     utility.addScrollEffect();
+    utility.manageAboutSection(authorName);
     utility.loadUtilityJs();
 }
 

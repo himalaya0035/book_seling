@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-
+from django.contrib.auth import login, authenticate
 from accounts.models import Profile
 
 
@@ -29,6 +29,7 @@ class UserSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         del ret['password']
+        del ret['fav_genres']
         return ret
 
     def validate_password(self, password):
@@ -38,14 +39,14 @@ class UserSerializer(serializers.ModelSerializer):
 
         # if matched_pass is None:
         #     raise ValidationError()
-        if len(password) < 7:
+        if len(password) < 8:
             raise ValidationError()
 
         return password
 
     def validate_username(self, username):
 
-        if len(username) < 8:
+        if len(username) < 6:
             raise ValidationError()
 
         return username.lower()
@@ -83,20 +84,25 @@ class UserLoginSerializer(serializers.Serializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    user = UserSerializer(remove_fields=['fav_genres'])
+    user = UserSerializer()
 
     class Meta:
         model = Profile
-        fields = ['user', 'address']
+        fields = ['user', 'address', 'contact_number']
 
     def create(self, validated_data):
         user_data = validated_data.pop('user')
         address = validated_data.pop('address')
+        contact_number = validated_data.pop('contact_number')
         user_data_serialized = UserSerializer(data=user_data)
         if user_data_serialized.is_valid(raise_exception=True):
             user_obj: User = user_data_serialized.save()
             user_obj.profile.address = address
+            user_obj.profile.contact_number = contact_number
             user_obj.set_password(user_data['password'])
             user_obj.profile.save()
             user_obj.save()
+
+            request = self.context.get('request')
+            login(request, user_obj)
             return user_obj.profile

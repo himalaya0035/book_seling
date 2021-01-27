@@ -43,6 +43,15 @@ class Bookmark(models.Model):
     user = models.OneToOneField(Profile, on_delete=models.CASCADE)
 
 
+class ShippingAddress(models.Model):
+    name = models.CharField(max_length=50)
+    address = models.TextField()
+    contact_number = models.CharField(max_length=13)
+    email = models.EmailField()
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+
 class Order(models.Model):
     order_status_choices = (
         ('pn', 'Pending'),
@@ -56,6 +65,7 @@ class Order(models.Model):
     promocode = models.ForeignKey('Promocode', null=True, blank=True, on_delete=models.SET_NULL)
     total_amount = models.PositiveIntegerField()
     status = models.CharField(choices=order_status_choices, max_length=2, default='pn')
+    shipping_address = models.ForeignKey(ShippingAddress, null=True, on_delete=models.SET_NULL)
 
 
 class Promocode(models.Model):

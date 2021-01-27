@@ -7,14 +7,15 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticate
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from orders.serializers import BookListSerializer
 from .models import Book, Author, Genre
 from .permissions import UpdateDeleteObjectPermission
 from .serializers import AuthorSerializer, BookSerializer, GenreSerializer, BookIconSerializer
 
-
+# name__exact
 class BookListView(ListAPIView):
     queryset = Book.objects.all()
-    serializer_class = BookIconSerializer
+    serializer_class = BookListSerializer
 
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['name', 'author__name', 'genre__name', 'ISBN',
@@ -22,7 +23,6 @@ class BookListView(ListAPIView):
     search_fields = ['name', 'author__name', 'genre__name']
 
     def get_serializer_context(self):
-        print(dir(self.request.session))
         context = super(BookListView, self).get_serializer_context()
         context.update({'request': self.request})
         return context
@@ -171,9 +171,9 @@ class GetBooksByAuthors(ListAPIView):
 
 class GetNewReleases(ListAPIView):
     serializer_class = BookIconSerializer
-    queryset = Book.objects.order_by('-date_created')
+    queryset = Book.objects.order_by('-date_created')[:9]
 
 
 class GetPopularBooks(ListAPIView):
     serializer_class = BookIconSerializer
-    queryset = Book.objects.all().order_by('-sold_quantity')
+    queryset = Book.objects.all().order_by('-sold_quantity')[:9]

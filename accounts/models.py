@@ -16,8 +16,9 @@ def auto_user_delete(sender, instance, *args, **kwargs):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     address = models.TextField()
+    contact_number = models.CharField(max_length=13)
 
-    firm_name = models.CharField(max_length=15, null=True, blank=True)
+    firm_name = models.CharField(max_length=30, null=True, blank=True)
     bank_account_no = models.PositiveBigIntegerField(null=True, blank=True)
     pan_number = models.PositiveBigIntegerField(null=True, blank=True)
     IFSC = models.CharField(max_length=11, null=True, blank=True)

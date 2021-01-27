@@ -1,22 +1,7 @@
-import {
-    postJsonData
-} from './constructSection.js';
-import {
-    disableDeleteBtn,
-    enableDeleteBtn
-} from './orderProcessingUtilities.js';
-import {
-    enableBtn,
-    disableBtn,
-    isEmailOK,
-    displayErrorMsg,
-    removeErrorMsg
-} from './validationUtility.js';
-import csrftoken from "../csrftoken.js";
+import {constructSection, postJsonData} from './constructSection.js';
+import {disableDeleteBtn, enableDeleteBtn} from './orderProcessingUtilities.js';
+import {disableBtn, displayErrorMsg, enableBtn, isEmailOK, removeErrorMsg} from './validationUtility.js';
 
-import {constructSection} from './constructSection.js';
-
-const baseAPIUrl = `${window.location.protocol}//${window.location.host}/api`;
 
 export function manageBookNameLength() {
     let booknames = document.getElementsByClassName('cartBookName');
@@ -27,24 +12,24 @@ export function manageBookNameLength() {
     }
 }
 
-
-export function manageAboutSection() {
-    let characterlength;
+export function manageAboutSection(objectName) {
+    let characterLength;
     if (window.location.href.indexOf('book') > -1) {
-        characterlength = 383;
+        characterLength = 383;
     } else if (window.location.href.indexOf('author') > -1) {
-        characterlength = 503;
+        characterLength = 490;
     }
     let aboutSection = document.getElementById('about');
-    if (aboutSection.innerText.length > characterlength) {
-        aboutSection.innerText = aboutSection.innerText.substring(0, characterlength) + ' ...';
+    if (aboutSection.innerText.length > characterLength) {
+        aboutSection.innerText = aboutSection.innerText.substring(0, characterLength);
+        aboutSection.innerHTML += `...     <a href="https://www.google.com/search?q=${objectName}" style="color: #808080; text-decoration: none" target="_blank">Read More</a>`;
     }
 }
 
 export function loadUtilityJs() {
-    var sidebarToggler = document.getElementsByClassName("sidebarToggler")[0];
-    var sidebar = document.getElementsByClassName("mobileSidebar")[0];
-    var cross = document.getElementsByClassName("cross")[0];
+    let sidebarToggler = document.getElementsByClassName("sidebarToggler")[0];
+    let sidebar = document.getElementsByClassName("mobileSidebar")[0];
+    let cross = document.getElementsByClassName("cross")[0];
 
     sidebarToggler.addEventListener('click', function () {
         sidebar.classList.toggle('sidebarActive');
@@ -53,7 +38,7 @@ export function loadUtilityJs() {
         sidebar.classList.toggle('sidebarActive');
     })
 
-    var bookNames = document.getElementsByClassName("bookName");
+    let bookNames = document.getElementsByClassName("bookName");
     for (let i = 0; i < bookNames.length; i++) {
         if (bookNames[i].innerText.length > 23) {
             bookNames[i].innerText = bookNames[i].innerText.substring(0, 25) + ' ...';
@@ -62,44 +47,35 @@ export function loadUtilityJs() {
 }
 
 export function toggleButton(mainElementClass, toBeReplacedClass, checkClass, buttonInitialText, buttonFinalText) {
-    var commonElement = document.getElementsByClassName(mainElementClass);
+    let commonElement = document.getElementsByClassName(mainElementClass);
     for (let i = 0; i < commonElement.length; i++) {
         commonElement[i].addEventListener('click', async (e) => {
 
-            var ele = e.target;
+            let ele = e.target;
             disableBtn(ele)
 
-            var child = ele.getElementsByTagName('i')[0];
+            let child = ele.getElementsByTagName('i')[0];
             let url;
             let obj;
-
-            if (mainElementClass === 'addToCartBtn') {
-                // when you want to add item from cart
-                console.log(child)
-                url = 'https://jsonplaceholder.typicode.com/posts';
+            if (mainElementClass === 'addToCartBtn' && ele.classList.contains('removeFromCartBtn')) {
+                // item already added to cart , now you want to remove it using the same button
+                url = '/api/cart/remove-from-cart';
                 obj = {
-                    title: 'foo',
-                    body: 'bar',
-                    userId: 1,
+                    deal_id: ele.id
                 }
                 ele.classList.toggle('removeFromCartBtn')
-            } else if (mainElementClass === 'addToCartBtn' && ele.classList.contains('removeFromCartBtn')) {
-                // item already sdded to cart , now you want to remove it using the same button
-                url = 'https://jsonplaceholder.typicode.com/posts';
+            } else if (mainElementClass === 'addToCartBtn') {
+                url = '/api/cart/all';
                 obj = {
-                    title: 'foo',
-                    body: 'bar',
-                    userId: 1,
+                    deal_id: ele.id
                 }
                 ele.classList.toggle('removeFromCartBtn')
             } else if (mainElementClass === 'bookmark') {
                 // when you want to bookmark a book
-                url = `${baseAPIUrl}/cart/bookmark`;
+                url = `/api/cart/bookmark`;
                 obj = {
                     book_id: ele.id
                 }
-                console.log(ele)
-                console.log(obj)
                 ele.classList.toggle('removeFromBookmark')
             } else if (mainElementClass === 'bookmark' && ele.classList.contains('removeFromBookmark')) {
                 // the book is already bookmarked and you want to remove it from bookmark using the same button
@@ -109,14 +85,9 @@ export function toggleButton(mainElementClass, toBeReplacedClass, checkClass, bu
                     body: 'bar',
                     userId: 1,
                 }
-                console.log(child)
                 ele.classList.toggle('removeFromBookmark')
             } else if (mainElementClass === 'deleteBookmark') {
-                // console.log(ele.id, ' child 2')
-                // jo api request isse just phle waale else if section me ki hai , wohi isme lgni hai
-                // yeh bhi bookmark htane ke liye hai pr khi doosri jgeh se
-                // url = `http://127.0.0.1:8000/api/cart/bookmark`;
-                url = `${baseAPIUrl}/cart/bookmark`;
+                url = `/api/cart/bookmark`;
                 obj = {
                     book_id: ele.id
                 }
@@ -148,8 +119,8 @@ export function toggleButton(mainElementClass, toBeReplacedClass, checkClass, bu
 }
 
 export function addScrollEffect() {
-    var rellax = new Rellax('.rellax');
-    var authorInfoContainer = document.getElementsByClassName('authorInfoContainer')[0];
+    let rellax = new Rellax('.rellax');
+    let authorInfoContainer = document.getElementsByClassName('authorInfoContainer')[0];
     window.onscroll = () => {
         if (window.scrollY > 0 && window.scrollY < 20) {
             authorInfoContainer.style.opacity = 0.9;
@@ -194,11 +165,11 @@ export function disableLoader(containerElement, loaderGif) {
 }
 
 export function loadAccountModalJs() {
-    var modal = document.getElementsByClassName("modal");
+    let modal = document.getElementsByClassName("modal");
 
-    var btn = document.getElementsByClassName("myBtn");
+    let btn = document.getElementsByClassName("myBtn");
 
-    var span = document.getElementsByClassName("close");
+    let span = document.getElementsByClassName("close");
 
 
     for (let i = 0; i < btn.length; i++) {
@@ -212,11 +183,11 @@ export function loadAccountModalJs() {
 
 
     if (window.location.href.indexOf('account') > -1) {
-        var emailInput = document.getElementById('emailAddress');
-        var confirmPasswordDelete = document.getElementById('confirmPasswordDelete');
-        var confirmPasswordDelete2 = document.getElementById('confirmPasswordDelete2')
-        var updateEmailBtn = document.getElementById('updateEmailBtn')
-        var deleteAccountBtn = document.getElementById('deleteAccountBtn');
+        let emailInput = document.getElementById('emailAddress');
+        let confirmPasswordDelete = document.getElementById('confirmPasswordDelete');
+        let confirmPasswordDelete2 = document.getElementById('confirmPasswordDelete2')
+        let updateEmailBtn = document.getElementById('updateEmailBtn')
+        let deleteAccountBtn = document.getElementById('deleteAccountBtn');
 
         updateEmailBtn.onclick = async () => {
             if (!isEmailOK(emailInput)) {
@@ -268,7 +239,6 @@ export function loadAccountModalJs() {
                 const isPostRequestOk = await postJsonData(url, obj);
                 if (isPostRequestOk) {
                     document.getElementById('message').style.color = '#673AB7';
-                    console.log('chl bhenchod');
                     setTimeout(() => {
                         window.location.replace('http://127.0.0.1:5501/index.html') // jha bhi redirect krna ho daal diyo,
                     }, 1000);
@@ -283,35 +253,35 @@ export function loadAccountModalJs() {
 }
 
 function calculateTotalAmount(discountPercent) {
-    var cartTotalString = document.getElementById('cartTotal');
-    var cartTotalInt = parseInt(cartTotalString.innerText.replace('Rs ', ''));
-    var discount = document.getElementById('discount')
-    var discountValue = discount.innerText.replace('Rs ', '');
-    var discountValueInt;
+    let cartTotalString = document.getElementById('cartTotal');
+    let cartTotalInt = parseInt(cartTotalString.innerText.replace('Rs ', ''));
+    let discount = document.getElementById('discount')
+    let discountValue = discount.innerText.replace('Rs ', '');
+    let discountValueInt;
     if (discountPercent) {
         discountValueInt = parseInt((cartTotalInt * discountPercent) / 100);
         discount.innerText = 'Rs ' + discountValueInt;
     } else {
         discountValueInt = parseInt(discountValue);
     }
-    var totalAmt = cartTotalInt - discountValueInt + 40;
+    let totalAmt = cartTotalInt - discountValueInt + 40;
     document.getElementById('totalAmt').innerText = 'Rs ' + totalAmt;
 }
 
 function setExpectedDeliveryDate() {
-    var d = new Date();
+    let d = new Date();
     d.setDate(d.getDate() + 2);
-    var stringDate = d.toString();
-    var expectedDate = stringDate.slice(0, 3) + ', ' + stringDate.slice(8, 10) + ' ' + stringDate.slice(4, 7) + ' 8am - 6pm';
+    let stringDate = d.toString();
+    let expectedDate = stringDate.slice(0, 3) + ', ' + stringDate.slice(8, 10) + ' ' + stringDate.slice(4, 7) + ' 8am - 6pm';
     document.getElementById('fillDeliveryDate').innerText = expectedDate;
 }
 
 export function loadOrderTotalJs() {
     calculateTotalAmount();
     setExpectedDeliveryDate();
-    var promocode = document.getElementById('promocodeinput');
-    var applyButton = document.getElementById('applypromocode')
-    var placeorderbtn = document.getElementById('placeOrder');
+    let promocode = document.getElementById('promocodeinput');
+    let applyButton = document.getElementById('applypromocode')
+    let placeorderbtn = document.getElementById('placeOrder');
     applyButton.onclick = async () => {
 
         if (promocode.value.length < 3) {
@@ -328,7 +298,7 @@ export function loadOrderTotalJs() {
             disableBtn(applyButton)
             const isPostRequestOk = await postJsonData(url, obj);
             if (isPostRequestOk) {
-                var discountPercent = parseInt(promocode.value.replace(/[^0-9\.]/g, ''), 10);
+                let discountPercent = parseInt(promocode.value.replace(/[^0-9\.]/g, ''), 10);
                 calculateTotalAmount(discountPercent)
 
             } else {
@@ -359,7 +329,7 @@ export function loadOrderTotalJs() {
     // wo dekhenge kaise kre
 }
 
-var arrayForResults = [];
+let arrayForResults = [];
 
 function filterData(data, searchText) {
     if (data) {
@@ -373,7 +343,7 @@ function filterData(data, searchText) {
 }
 
 function outputHtml(matches) {
-    var searchResults = document.getElementById('searchResults');
+    let searchResults = document.getElementById('searchResults');
     let html = matches.map(match => `<div class="result">
         <div class="resultImg">
             <a href="book.html"><img src="${match.imgUrl}" alt=""></a>
@@ -399,10 +369,10 @@ function disableSearchLoader(loader) {
 }
 
 export function manageSearchResults() {
-    var searchBox = document.getElementById('searchBox');
-    var searchResults = document.getElementById('searchResults');
-    var loader2 = document.getElementById('loader2');
-    var searchIcon = document.getElementById('searchIcon');
+    let searchBox = document.getElementById('searchBox');
+    let searchResults = document.getElementById('searchResults');
+    let loader2 = document.getElementById('loader2');
+    let searchIcon = document.getElementById('searchIcon');
     searchIcon.onclick = () => {
         if (searchIcon.classList.contains('fa-close'))
             searchBox.value = '';
@@ -429,3 +399,33 @@ export function manageSearchResults() {
     })
 }
 
+export function getUser(data) {
+
+    return data.user.first_name
+
+}
+
+export function addDealToCart() {
+    const btn = document.getElementsByClassName('addToCartBtn2');
+
+    for (let i = 0; i < btn.length; i++) {
+
+        btn[i].onclick = (e) => {
+
+            const deal_id = e.target.id;
+            const url = '/api/cart/all';
+            const obj = {
+                deal_id: deal_id
+            }
+            const res = postJsonData(url, obj);
+            if (res) {
+                btn[i].innerHTML = `<i class ="fa fa-check" style="color:white;"></i>` + ` Added`;
+            }else {
+                alert('no product left')
+            }
+        }
+
+    }
+
+
+}

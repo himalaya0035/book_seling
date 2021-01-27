@@ -1,4 +1,5 @@
-import { postJsonData } from "./constructSection.js";
+import {postJsonData} from "./constructSection.js";
+import csrftoken from "../csrftoken.js";
 
 export function isEmailOK(email) {
     if (email.value.includes('@') && (email.value.includes('.com') || email.value.includes('.mail'))) {
@@ -11,26 +12,24 @@ export function isEmailOK(email) {
 }
 
 function isFieldsEmpty(array) {
-    return (array.some(arrayElement => arrayElement.value ==  ''))
+    return (array.some(arrayElement => arrayElement.value == ''))
 }
 
 function isAddressOk(address) {
-    if (address.value.length > 30){
+    if (address.value.length > 30) {
         removeErrorMsg();
         return true;
-    }
-    else{
+    } else {
         displayErrorMsg('Delivery address needs to be atleast 30 characters long');
         return false;
     }
 }
 
-function  isContactOk(contact) {
-    if(contact.value.length > 9 && contact.value.length < 11 ){
+function isContactOk(contact) {
+    if (contact.value.length > 9 && contact.value.length < 11) {
         removeErrorMsg();
         return true;
-    }
-    else {
+    } else {
         displayErrorMsg('Contact Number needs to be 10 characters long')
         return false;
     }
@@ -42,7 +41,7 @@ export function disableBtn(ele) {
     ele.style.color = '#666666';
 }
 
-export function enableBtn(ele) { 
+export function enableBtn(ele) {
     ele.disabled = false;
     ele.style.background = '#673AB7';
     ele.style.color = 'white';
@@ -57,8 +56,7 @@ export function removeErrorMsg() {
 }
 
 
-
-export function validationUtility(){
+export function validationUtility() {
     var contact = document.getElementById('contact');
     var address = document.getElementById('address');
     var email = document.getElementById('email')
@@ -66,13 +64,13 @@ export function validationUtility(){
     var saveBtn = document.getElementById('saveBtn');
     var condition
     var arr = Array.from(firstSection);
-   function validateFirstSection(btn) {
 
-        if (window.location.href.indexOf('profile') > -1){
-            condition = !isFieldsEmpty(arr) && isContactOk(contact) && isEmailOK(email) && isAddressOk(address);
-        }
-        else {
-            condition = !isFieldsEmpty(arr) && isContactOk(contact) && isAddressOk(address) ;
+    function validateFirstSection(btn) {
+
+        if (window.location.href.indexOf('profile') > -1) {
+            condition = !isFieldsEmpty(arr) && isContactOk(contact) && isAddressOk(address);
+        } else {
+            condition = !isFieldsEmpty(arr) && isContactOk(contact) && isAddressOk(address);
         }
 
         if (condition) {
@@ -91,20 +89,37 @@ export function validationUtility(){
             })
         }
         saveBtn.onclick = async () => {
-            let url = 'https://jsonplaceholder.typicode.com/posts';
+            let url = '/api/accounts/profile';
             let obj = {
                 address: address.value,
+                contact_number: contact.value,
                 user: {
-
+                    first_name: firstSection[0].value,
+                    last_name: firstSection[1].value
                 }
             }
+            console.log(obj)
+
+            const res = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    "X-CSRFToken": csrftoken
+                },
+                body: JSON.stringify(obj)
+            })
+
             disableBtn(saveBtn);
-            const isPostRequestOk = await postJsonData(url,obj);
-            enableBtn(saveBtn)
-            if(isPostRequestOk){
-                window.location.reload();
+            let isPostRequestOk = false;
+            if (res.status === 200) {
+                isPostRequestOk = true
             }
-            else {
+
+            enableBtn(saveBtn)
+            if (isPostRequestOk) {
+                window.location.reload();
+            } else {
                 alert(`couldn't update profile , try again later`);
             }
         }

@@ -5,14 +5,16 @@ import * as utility from "./utilities.js";
 const rootElement = document.getElementById("rootElement");
 var loader = document.getElementById("loader");
 var contentWrapper;
-var genreName = window.location.pathname.split('/')[2];
+var genreName = window.location.pathname.split('/')[2].replace('%20', ' ');
+
+// genreName;
 
 function constructBookList(data) {
     // jo bhi genre ho like action or adventure wo line number 8 pe genreName waale variable me store krna
     // abhi ke liye aise kr diya hai
     var sectionBooks = '';
     for (let i = 0; i < data.length; i++) {
-
+        console.log(data[i].name)
         sectionBooks +=
             `
             <div class="bookItem">
@@ -23,7 +25,7 @@ function constructBookList(data) {
                     <p class="cartBookName">${data[i].name}</p>
                     <p class="authorName"></p>
                     <div class="priceRating">
-                        <p class="cartBookPrice">Rs ${data[i].lowest_price}</p>
+                        <p class="cartBookPrice">Rs ${data[i].lowest_price.price}</p>
                         <p class="cartBookRating"><i class="fa fa-star"></i> ${data[i].rating}</p>
                     </div>
                     <div class="options bookOptions">
@@ -73,7 +75,7 @@ async function constructGenrePage(urlOne, isAuthenticated) {
 }
 const baseURL = `${window.location.protocol}//${window.location.host}/api`;
 const genreBooksURL = `${baseURL}/books/all?name=&author__name=&genre__name=${genreName}&ISBN=&author__id=`;
-console.log(genreBooksURL)
+console.log(genreName)
 constructGenrePage(genreBooksURL, true)
     .then(() => console.log("prmoise resolved"))
     .catch((err) => console.log(err.message));

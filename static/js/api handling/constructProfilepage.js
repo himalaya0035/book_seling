@@ -9,11 +9,7 @@ var contentWrapper;
 var profileBannerImgUrl;
 
 function constructProfileForm(data) {
-    console.log(data)
-    // requires fields FirstName, lastname, address, contact and email
-    // sb fields nikalke input tags ki value me daal diyo
-    // ${data.first_name}
-    console.log(data.address)
+    console.log(data.contact_number)
     return (
         `
         <div class="sectionBottom rellax" data-rellax-speed="0">
@@ -48,12 +44,9 @@ function constructProfileForm(data) {
                                         class="loginField sectionFirst" value=${data.user.first_name}>
                                     <label class="fieldlabels">Last Name : </label>
                                     <input type="text" class="sectionFirst" name="lname" placeholder="Last Name" value=${data.user.last_name}>
-                                    <label class="fieldlabels">Email: </label>
-                                    <input type="email" name="email" placeholder="Email Id" id="email"
-                                        class="sectionFirst" value=${data.user.email}>
                                     <label class="fieldlabels">Contact No :</label>
-                                    <input type="number" name="pwd" placeholder="Contact No" id="contact"
-                                        class="loginField sectionFirst" />
+                                    <input type="number"  name="pwd" placeholder="Contact No" id="contact"
+                                        class="loginField sectionFirst" value=${data.contact_number} >
                                     <label class="fieldlabels">Delivery Address : (Min 30 characters)</label>
                                     <textarea name="DeliveryAddress" placeholder="Delivery Address"
                                         id="address" class="loginField sectionFirst" >${data.address}</textarea>

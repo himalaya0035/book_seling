@@ -2,25 +2,24 @@ import {constructSection} from "./constructSection.js";
 import {constructHomepageTopBar, constructSidebar, constructTopBar} from "./component.js";
 import * as utility from "./utilities.js";
 
-const baseURL =  `${window.location.protocol}//${window.location.host}/api`;
-const url1 = `${baseURL}/books/best-sellers`;
-const url2 = `${baseURL}/books/recommended`;
-const url3 = `${baseURL}/authors/top`;
-const url4 = `${baseURL}/books/new`;
-const url5 = `${baseURL}/books/popular`;
+const url1 = `/api/books/best-sellers`;
+const url2 = `/api/books/recommended`;
+const url3 = `/api/authors/top`;
+const url4 = `/api/books/new`;
+const url5 = `/api/books/popular`;
 
 const rootElement = document.getElementById("rootElement");
-var loader = document.getElementById("loader");
-var contentWrapper;
+let loader = document.getElementById("loader");
+let contentWrapper;
 
 function constructBooksSlider(data, sectionName) {
 
-    var sliderBooks = "";
+    let sliderBooks = "";
     for (let i = 0; i < data.length; i++) {
         sliderBooks += `
         <div class="homepageBook">
             <div class="coverImgHolder">
-                <a href="book.html" aria-label="view Book"><img src=${data[i].cover_image} loading="lazy" alt="" /></a>
+                <a href="/book/${data[i].ISBN}" aria-label="view Book"><img src=${data[i].cover_image} loading="lazy" alt="" /></a>
             </div>
             <p class="bookName">${data[i].name}</p>
             <div class="ratingAndPrice">
@@ -43,8 +42,7 @@ function constructBooksSlider(data, sectionName) {
 }
 
 function constructAuthorsSlider(data) {
-    var sliderAuthors = "";
-    console.log("author data -> ", data)
+    let sliderAuthors = "";
     for (let i = 0; i < data.length; i++) { // ye 9 bs sample ke liye liya hai maine, array length ayega yha
         console.log(data[i].id)
         sliderAuthors += `
@@ -73,21 +71,26 @@ function constructAuthorsSlider(data) {
     )
 }
 
-let NameOfUser = "Priyansh Singh"; // ye data kaise nikalna hai api se wo dekhlena
-let userId = 1;
+let NameOfUser;
+let isAuthenticated = false;
+async function constructHomepage(urlOne, urlTwo, urlThree, urlFour, urlFive) {
 
 
-async function constructHomepage(urlOne, urlTwo, urlThree, urlFour, urlFive, isAuthenticated) {
     utility.enableLoader(rootElement, loader)
-
+    try {
+        NameOfUser = await constructSection('/api/accounts/profile', utility.getUser);
+        console.log(NameOfUser);
+        isAuthenticated = true;
+    } catch (e){
+        NameOfUser = 'Guest';
+    }
     let bestSellersHtml = await constructSection(urlOne, constructBooksSlider, 'Best Sellers');
     let recommendedHtml = await constructSection(urlTwo, constructBooksSlider, 'Recommended For You');
     let newReleasesHtml = await constructSection(urlFour, constructBooksSlider, 'New Releases');
     let popularHtml = await constructSection(urlFive, constructBooksSlider, 'Popular');
     let topAuthorsHtml = await constructSection(urlThree, constructAuthorsSlider);
     let topBarHtml = constructHomepageTopBar();
-    let mobilesidebarHtml = constructSidebar(isAuthenticated, userId, NameOfUser);
-
+    let mobilesidebarHtml = constructSidebar(isAuthenticated,NameOfUser);
     contentWrapper = `<div class ="contentWrapper">
          ${topBarHtml}
          ${bestSellersHtml}

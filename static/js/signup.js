@@ -1,5 +1,3 @@
-import {postJsonData} from "./api handling/constructSection.js";
-
 var contact = document.getElementById('contact');
 var address = document.getElementById('address');
 var email = document.getElementById('email')
@@ -8,7 +6,25 @@ var saveBtn = document.getElementById('saveBtn');
 var condition
 var arr = Array.from(firstSection);
 
-console.log(postJsonData)
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+const csrftoken = getCookie('csrftoken');
+
+// console.log(con)
 
 function validateFirstSection(btn) {
 
@@ -20,8 +36,10 @@ function validateFirstSection(btn) {
 
     if (condition) {
         enableBtn(btn);
-    } else
+    } else {
         disableBtn(btn);
+    }
+
 }
 
 function isEmailOK() {
@@ -175,7 +193,7 @@ if (window.location.href.indexOf('signup') > -1) {
 
     disableBtn(submitBtn);
 
-    for (let i = 0; i < signupGenres.length; i++) {
+    for (i = 0; i < signupGenres.length; i++) {
         signupGenres[i].addEventListener('click', (e) => {
             var clickedGenre = e.target;
             clickedGenre.classList.toggle('selected')
@@ -192,9 +210,10 @@ if (window.location.href.indexOf('signup') > -1) {
     // form validation starts now
     var firstSectionBtn = document.getElementById('sectionFirstBtn');
 
+    console.log(firstSectionBtn)
     disableBtn(firstSectionBtn);
-
-    for (let i = 0; i < firstSection.length; i++) {
+    console.log('heeeeeeeeeeeeeeeeeeeeeeeeeeee')
+    for (i = 0; i < firstSection.length; i++) {
         firstSection[i].addEventListener('input', () => {
             validateFirstSection(firstSectionBtn);
         })
@@ -209,7 +228,7 @@ if (window.location.href.indexOf('signup') > -1) {
 
     disableBtn(secondSectionBtn);
 
-    for (let i = 0; i < secondSection.length; i++) {
+    for (i = 0; i < secondSection.length; i++) {
         secondSection[i].addEventListener('input', () => {
             validateSecondSection();
         })
@@ -217,7 +236,7 @@ if (window.location.href.indexOf('signup') > -1) {
 
 
     function validateSecondSection() {
-        for (let i = 0; i < secondSection.length; i++) {
+        for (i = 0; i < secondSection.length; i++) {
             condition = secondSection[i].value !== '' && username.value.length >= 6 && password.value.length > 7 && confirmPass.value.length > 7;
             if (condition) {
                 if (isPassowrdsEqual() && isEmailOK()) {
@@ -244,72 +263,84 @@ if (window.location.href.indexOf('signup') > -1) {
     }
 
 
-    var timer = document.getElementById('timer');
-    submitBtn.addEventListener('click', () => {
+}
+
+// validation for profile form is here
+if (window.location.href.indexOf("profile") > -1) {
+    disableBtn(saveBtn);
+    for (i = 0; i < firstSection.length; i++) {
+        firstSection[i].addEventListener('input', () => {
+            validateFirstSection(saveBtn);
+        })
+    }
+    console.log(submitBtn);
+
+
+    // window.location.reload();
+}
+
+async function postJsonData(url, objdata) {
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                "X-CSRFToken": csrftoken
+            },
+            body: JSON.stringify(objdata)
+        })
+        if (response.status === 201 || response.status === 200) {
+            return true;
+        }
+    } catch (err) {
+        console.log(err.message)
+        return false
+    }
+}
+
+submitBtn.onclick = async () => {
+    // make awaiting api call here;
+
+    const first_name = firstSection[0].value;
+    const last_name = firstSection[1].value;
+
+    let genre_names = [];
+    for (let i = 0; i < selectedGenre.length; i++) {
+        genre_names.push(selectedGenre[i].innerText)
+    }
+
+    const data = {
+        user: {
+            username: username.value,
+            first_name,
+            last_name,
+            password: password.value,
+            fav_genres: genre_names
+        },
+        address: address.value,
+        contact_number: contact.value
+    }
+
+    const url = `/api/accounts/register`
+
+    const res = await postJsonData(url, data);
+    if (res === true) {
+
+        var timer = document.getElementById('timer');
         var timeleft = 0;
         var downloadTimer = setInterval(function () {
             if (timeleft > 4) {
                 clearInterval(downloadTimer);
-                window.location.replace("http://127.0.0.1:5500/index.html");
+                window.location = "/";
             }
             var remain = 5 - timeleft;
             timer.innerText = 'Logging You in ' + remain + 's';
             timeleft += 1;
         }, 1000);
-    })
 
-}
 
-// validation for profile form is here 
-if (window.location.href.indexOf("profile") > -1) {
-    disableBtn(saveBtn);
-    validateFirstSection(saveBtn);
-    for (let i = 0; i < firstSection.length; i++) {
-        firstSection[i].addEventListener('input', () => {
-            validateFirstSection(saveBtn);
-        })
-    }
-    saveBtn.onclick = async () => {
-
-        const first_name = firstSection[0].value;
-        const last_name = firstSection[1].value;
-
-        let genre_names = [];
-        for (let i = 0; i < selectedGenre.length; i++) {
-            genre_names.push(selectedGenre[i].innerText)
-        }
-
-        const data = {
-            user: {
-                username: username.value,
-                first_name,
-                last_name,
-                password: password.value,
-                get_favourite: genre_names
-            },
-            address: address.value
-        }
-        const url = `${window.location.protocol}//${window.location.host}/api/accounts/login`;
-        postJsonData(url, data)
-        //     try {
-        //         const response = await fetch(url, {
-        //             method: 'POST',
-        //             headers: {
-        //                 'Accept': 'application/json',
-        //                 'Content-Type': 'application/json',
-        //                 "X-CSRFToken": csrftoken
-        //             },
-        //             body: JSON.stringify(data)
-        //         })
-        //         if (response.status === 201 || response.status === 200) {
-        //             window.location.push()
-        //             return true;
-        //         }
-        //     } catch (err) {
-        //         console.log(err.message)
-        //         return false
-        //     }
-        //     // window.location.reload();
-        // }
+    } else {
+        console.log('invalid')
     }
 }
