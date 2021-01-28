@@ -39,7 +39,7 @@ class Author(models.Model):
 class Book(models.Model):
     ISBN = models.CharField(max_length=14, primary_key=True)
     name = models.CharField(max_length=100)
-    author = models.ManyToManyField(Author)
+    author = models.ManyToManyField(Author, blank=False)
     genre = models.ManyToManyField(Genre)
     cover_image = models.ImageField(upload_to='book_images')
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=5)
@@ -47,6 +47,8 @@ class Book(models.Model):
     released_date = models.DateTimeField()
     date_created = models.DateTimeField(auto_now_add=True)
     sold_quantity = models.PositiveIntegerField(default=0)
+
+    created_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
 
     def clean(self):
         if 0 < self.rating > 5 or self.rating < 0:

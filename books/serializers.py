@@ -45,7 +45,7 @@ class BookSerializer(serializers.ModelSerializer):
         model = Book
         fields = ['ISBN', 'name', 'genre_names', 'author_details', 'genre', 'author', 'cover_image',
                   'released_date', 'info', 'rating', 'lowest_price']
-        read_only_fields = ['released_date', 'genre_names', 'author_details', 'lowest_price']
+        read_only_fields = ['genre_names', 'author_details', 'lowest_price']
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)

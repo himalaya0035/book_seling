@@ -10,7 +10,7 @@ from books.serializers import BookSerializer
 from .models import Order
 from .models import ProductOrderOrCart, Bookmark, Promocode, ShippingAddress
 from .serializers import CartProductSerializer, DealSerializer
-from .utils import remove_out_of_stock_products
+from .utils import remove_out_of_stock_products, update_deal_and_book_data
 
 
 # class MyThrottle(UserRateThrottle):
@@ -141,15 +141,18 @@ request payload
 
 class Checkout(APIView):
     def post(self, request):
-        cart_products_qs = ProductOrderOrCart.objects.filter(cart__user=request.user.profile).annotate(
-            available_stock=Sum('deal__quantity'))
-
         promocode = request.data.get('promocode')
         shipping_details = request.data.get('shipping_details')
+
         discount_percent = 0
+
         if promocode is not None:
             promocode_obj = get_object_or_404(Promocode, code=promocode)
             discount_percent = promocode_obj.percentage_off
+
+        cart_products_qs: QuerySet[ProductOrderOrCart] = ProductOrderOrCart.objects.filter(
+            cart__user=request.user.profile).annotate(
+            available_stock=Sum('deal__quantity'))
 
         in_stock = cart_products_qs.filter(available_stock__gte=F('quantity')).select_related('deal', 'deal__product')
         # out_of_stock = cart_products_qs.filter(available_stock__lt=F('quantity'))
@@ -168,12 +171,18 @@ class Checkout(APIView):
                                          shipping_address=shipping_address_obj)
 
         in_stock.update(cart=None, order=order_obj)
-        for i in in_stock.iterator():
-            i.deal.quantity = F('quantity') - i.quantity
-            i.deal.save()
-            i.deal.product.sold_quantity = F('sold_quantity') + i.quantity
-            i.deal.product.save()
-            i.save()
 
+        update_deal_and_book_data(in_stock)
         remove_out_of_stock_products()
+
         return Response(status=status.HTTP_201_CREATED)
+
+
+class PendingOrder(APIView):
+    def get(self, request, *args, **kwargs):
+        # pending_orders = ProductOrderOrCart.objects.filter(order__status='pn', deal__seller__user=request.user)
+        # pending_orders.update(or)
+        status = request.data.get('status')
+        profile = request.user.profile
+        pending_orders = Order.objects.filter(status='pn', productorderorcart__deal__seller=profile)
+        pending_orders.update(status=status)

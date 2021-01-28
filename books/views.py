@@ -12,6 +12,7 @@ from .models import Book, Author, Genre
 from .permissions import UpdateDeleteObjectPermission
 from .serializers import AuthorSerializer, BookSerializer, GenreSerializer, BookIconSerializer
 
+
 # name__exact
 class BookListView(ListAPIView):
     queryset = Book.objects.all()
@@ -101,6 +102,7 @@ class BestSellerView(ListAPIView):
 class TopAuthors(ListAPIView):
     # serializer_class = AuthorSerializer
     queryset = Author.objects.annotate(booksWritten=Count('book')).order_by('-booksWritten')[:9]
+
     # Author.objects.order_by('book__rating')
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
@@ -110,35 +112,6 @@ class TopAuthors(ListAPIView):
 
 # class RegisterNewBook(APIView):
 #     def post(self, *args, **kwargs):
-#         request_data = self.request.data
-#
-#         ISBN = request_data.get('ISBN')
-#         qs = Book.objects.filter(ISBN=ISBN)
-#         exists = qs.exists()
-#
-#         if exists:
-#             entity_obj = Entity.objects.create(product=qs.first(), created_by=self.request.user.profile,
-#                                                price=request_data.pop('price'))
-#
-#         else:
-#             genre_names = request_data.pop('genre_names')
-#
-#             serialized = BookSerializer(data={**request_data, ISBN: ISBN})
-#
-#             if serialized.is_valid(raise_exception=False):
-#                 book_obj: Book = serialized.save()
-#                 serialized_entity = EntitySerializer(
-#                     data={**request_data, 'product': book_obj.id, 'created_by': self.request.user.profile.id})
-#                 if serialized_entity.is_valid(raise_exception=True):
-#                     entity_obj = serialized_entity.save()
-#
-#                 else:
-#                     book_obj.delete()
-#                     return Response(status=status.HTTP_400_BAD_REQUEST)
-#             else:
-#                 return Response(status=status.HTTP_400_BAD_REQUEST)
-#
-#         return Response(EntitySerializer(entity_obj).data, status=status.HTTP_201_CREATED)
 
 
 """
@@ -154,13 +127,6 @@ class TopAuthors(ListAPIView):
 """
 
 
-# class GetBooksByAuthors(ListAPIView):
-#     serializer_class = BookSerializer
-#
-#     def get_queryset(self):
-#         pk = (self.kwargs.get('pk'))
-#         author = Author.objects.get(id=pk)
-#         return author.book_set
 class GetBooksByAuthors(ListAPIView):
     serializer_class = BookIconSerializer
 
@@ -177,3 +143,11 @@ class GetNewReleases(ListAPIView):
 class GetPopularBooks(ListAPIView):
     serializer_class = BookIconSerializer
     queryset = Book.objects.all().order_by('-sold_quantity')[:9]
+
+
+class SimilarBookView(ListAPIView):
+    serializer_class = BookIconSerializer
+
+    def get_queryset(self):
+        pk = self.kwargs.get('pk')
+        return Book.objects.filter(genre__book__ISBN=pk)
