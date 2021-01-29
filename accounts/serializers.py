@@ -91,6 +91,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ['user', 'address', 'contact_number']
 
     def create(self, validated_data):
+        print(validated_data)
         user_data = validated_data.pop('user')
         address = validated_data.pop('address')
         contact_number = validated_data.pop('contact_number')

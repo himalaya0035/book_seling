@@ -49,15 +49,24 @@ function constructBookmarkedList(data) {
 }
 
 
-let NameOfUser = "Priyansh Singh"; // ye data kaise nikalna hai api se wo dekhlena
-let userId = 1;
+let NameOfUser;
+let isAuthenticated = false;
 
-async function constructBookmarkPage(urlOne, isAuthenticated) {
+async function constructBookmarkPage(urlOne) {
     utility.enableLoader(rootElement, loader);
+
+
+    utility.enableLoader(rootElement, loader)
+    try {
+        NameOfUser = await constructSection('/api/accounts/profile', utility.getUser);
+        isAuthenticated = true;
+    } catch (e) {
+        NameOfUser = 'Guest';
+    }
 
     let bookmarkedListHtml = await constructSection(urlOne, constructBookmarkedList);
     let topBarHtml = constructTopBar('Bookmarked', 'index.html', 'cart.html');
-    let sidebarHtml = constructSidebar(isAuthenticated, userId, NameOfUser);
+    let sidebarHtml = constructSidebar(isAuthenticated, NameOfUser);
 
     contentWrapper = `
             <div class ="contentWrapper">

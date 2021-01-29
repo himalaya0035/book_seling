@@ -50,7 +50,7 @@ function constructAuthorBooksSection(data) {
             </div>
             <p class="bookName">${data[i].name}</p>
             <div class="ratingAndPrice">
-                <h6 class="homepageBookPrice">Rs ${data[i].lowest_price}</h6>
+                <h6 class="homepageBookPrice">Rs ${data[i].lowest_price.price}</h6>
                 <h6 class="homepageBookRating">${data[i].rating}&#9733;</h6>
             </div>
         </div>
@@ -66,15 +66,24 @@ function constructAuthorBooksSection(data) {
     )
 }
 
-let NameOfUser = "Priyansh Singh"; // ye data kaise nikalna hai api se wo dekhlena
-let userId = 1;
+let NameOfUser;
+let isAuthenticated = false;
 
-async function constructAuthorPage(urlone, urlTwo, isAuthenticated) {
+async function constructAuthorPage(urlone, urlTwo) {
     utility.enableLoader(rootElement, loader);
+
+    try {
+        NameOfUser = await constructSection('/api/accounts/profile', utility.getUser);
+        isAuthenticated = true;
+    } catch (e) {
+        NameOfUser = 'Guest';
+    }
+
+
     let getAuthorDescHtml = await constructSection(urlone, constructAuthorDesc);
     let getAuthorBooksHtml = await constructSection(urlTwo, constructAuthorBooksSection);
-    let mobilesidebarHtml = constructSidebar(isAuthenticated, userId, NameOfUser); // is function ko phle component.js me check krle, tab arguements jo diye wo smj jayega
-    let topBarHtml = constructTopBar(authorName, "index.html", undefined); // jo bhi django ke according link ho wo daal diyo
+    let mobilesidebarHtml = constructSidebar(isAuthenticated, NameOfUser); // is function ko phle component.js me check krle, tab arguements jo diye wo smj jayega
+    let topBarHtml = constructTopBar(authorName, "/", undefined); // jo bhi django ke according link ho wo daal diyo
     let authorInfoContainer = ` <div class="authorInfoContainer" style="background: url(${authorImgUrl}); background-position: top; background-size: cover"></div>`
     sectionBottom = `
             <div class="sectionBottom rellax" data-rellax-speed="0">

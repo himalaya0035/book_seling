@@ -79,7 +79,6 @@ async function constructHomepage(urlOne, urlTwo, urlThree, urlFour, urlFive) {
     utility.enableLoader(rootElement, loader)
     try {
         NameOfUser = await constructSection('/api/accounts/profile', utility.getUser);
-        console.log(NameOfUser);
         isAuthenticated = true;
     } catch (e){
         NameOfUser = 'Guest';
@@ -94,7 +93,7 @@ async function constructHomepage(urlOne, urlTwo, urlThree, urlFour, urlFive) {
     contentWrapper = `<div class ="contentWrapper">
          ${topBarHtml}
          ${bestSellersHtml}
-         ${recommendedHtml}
+         ${isAuthenticated ? recommendedHtml : ``}
          ${topAuthorsHtml}
          ${newReleasesHtml}
          ${popularHtml}
@@ -111,7 +110,6 @@ async function constructHomepage(urlOne, urlTwo, urlThree, urlFour, urlFive) {
     utility.manageSearchResults();
 }
 
-console.log(url3)
 constructHomepage(url1, url2, url3, url4, url5, true)
     .then(() => console.log("promise resolved"))
     .catch((err) => console.log(err.message));

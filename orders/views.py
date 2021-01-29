@@ -1,6 +1,7 @@
 from django.db.models import *
 from rest_framework import status
-from rest_framework.generics import ListCreateAPIView, get_object_or_404, ListAPIView
+from rest_framework.generics import ListCreateAPIView, get_object_or_404, ListAPIView, RetrieveUpdateDestroyAPIView
+
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -72,25 +73,20 @@ class RemoveFromCart(APIView):
     # throttle_classes = [MyThrottle]
 
     def post(self, request, *args, **kwargs):
-        deal_id = request.data['deal_id']
-        deal_obj = Deal.objects.filter(id=deal_id).values('quantity').first()
-        obj: ProductOrderOrCart = get_object_or_404(ProductOrderOrCart, deal_id=deal_id)
+        pk = kwargs.get('deal_id')
+        obj: ProductOrderOrCart = get_object_or_404(ProductOrderOrCart, deal_id=pk)
+        obj.delete()
+        return Response(status=status.HTTP_200_OK)
 
-        if obj.quantity - 1 == 0:
-            obj.delete()
-            return Response(status=status.HTTP_200_OK)
 
+class UpdateQty(APIView):
+
+    def post(self, request, *args, **kwargs):
+        pk = kwargs.get('deal_id')
+        obj: ProductOrderOrCart = get_object_or_404(ProductOrderOrCart, deal_id=pk)
         obj.quantity -= 1
         obj.save()
-
-        if obj.quantity > deal_obj['quantity']:
-            return Response(data={
-                'message': 'no more product left in this deal'
-            }, status=status.HTTP_410_GONE)
-
-        return Response(data={
-            'removed from cart'
-        }, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
 
 
 class BookMarkActionView(APIView):
@@ -128,14 +124,14 @@ request payload
 {
 
     "promocode":"",
-    "shipping_details":{
-        "name":"",
-        "address":"",
-        "contact_number":"",
-        "email":""
-    }    
-}
 
+    "shipping_details":{
+        "name":"Priyansh Singh",
+        "address":"113 North City Pilibhit Road Bareilly",
+        "contact_number":"9412666633",
+        "email":"singhpriyansh51001@gmail.com"
+    }    
+    }
 """
 
 
@@ -143,7 +139,6 @@ class Checkout(APIView):
     def post(self, request):
         promocode = request.data.get('promocode')
         shipping_details = request.data.get('shipping_details')
-
         discount_percent = 0
 
         if promocode is not None:
@@ -164,8 +159,7 @@ class Checkout(APIView):
         #     })
         total_cost = in_stock.aggregate(total_amount=Sum(F('quantity') * F('deal__price')))['total_amount']
         total_cost = total_cost - (total_cost * discount_percent // 100)
-
-        shipping_address_obj, created = ShippingAddress.objects.get_or_create(**shipping_details)
+        shipping_address_obj, created = ShippingAddress.objects.get_or_create(**shipping_details, user=request.user)
 
         order_obj = Order.objects.create(user=request.user, total_amount=total_cost,
                                          shipping_address=shipping_address_obj)

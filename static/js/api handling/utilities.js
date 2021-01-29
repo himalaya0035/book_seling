@@ -56,15 +56,15 @@ export function toggleButton(mainElementClass, toBeReplacedClass, checkClass, bu
 
             let child = ele.getElementsByTagName('i')[0];
             let url;
-            let obj;
+            let obj = {}
+            const deal_id = ele.id;
             if (mainElementClass === 'addToCartBtn' && ele.classList.contains('removeFromCartBtn')) {
                 // item already added to cart , now you want to remove it using the same button
-                url = '/api/cart/remove-from-cart';
-                obj = {
-                    deal_id: ele.id
-                }
+                url = `/api/cart/remove-from-cart/${deal_id}`;// yha url dekh lena
+
                 ele.classList.toggle('removeFromCartBtn')
             } else if (mainElementClass === 'addToCartBtn') {
+                console.log('67')
                 url = '/api/cart/all';
                 obj = {
                     deal_id: ele.id
@@ -333,7 +333,7 @@ let arrayForResults = [];
 
 function filterData(data, searchText) {
     if (data) {
-        arrayForResults = data.results;
+        arrayForResults = data;
     }
     let matches = arrayForResults.filter(arrElement => {
         const regex = new RegExp(`^${searchText}`, 'gi');
@@ -344,16 +344,15 @@ function filterData(data, searchText) {
 
 function outputHtml(matches) {
     let searchResults = document.getElementById('searchResults');
-    let html = matches.map(match => `<div class="result">
+    searchResults.innerHTML = matches.map(match => `<div class="result" href="">
         <div class="resultImg">
-            <a href="book.html"><img src="${match.imgUrl}" alt=""></a>
+            <a href=/book/${match.ISBN}><img src="${match.cover_image}" alt=""></a>
         </div>
         <div class="resultName">
-            <h4><a href="book.html" style="text-decoration:none; color:rgb(41,41,41);">${match.name}</a></h4>
+            <h4><a href=/book/${match.ISBN} style="text-decoration:none; color:rgb(41,41,41);">${match.name}</a></h4>
         </div>
      </div>`
     ).join('');
-    searchResults.innerHTML = html;
 }
 
 function enableSearchLoader(loader) {
@@ -386,7 +385,7 @@ export function manageSearchResults() {
             if (searchBox.value.length === 1) {
                 arrayForResults = [];
                 enableSearchLoader(loader2)
-                let aisehi = await constructSection('./js/api handling/sample.json', filterData, searchBox.value);
+                let aisehi = await constructSection(`/api/books/all?search=${searchBox.value}`, filterData, searchBox.value);
                 disableSearchLoader(loader2)
             } else {
                 filterData(undefined, searchBox.value)
@@ -405,27 +404,122 @@ export function getUser(data) {
 
 }
 
+// export function addDealToCart() {
+//     const btn = document.getElementsByClassName('addToCartBtn2');
+//
+//     for (let i = 0; i < btn.length; i++) {
+//
+//         btn[i].onclick = (e) => {
+//
+//             const deal_id = e.target.id;
+//             const url = '/api/cart/all';
+//             const obj = {
+//                 deal_id: deal_id
+//             }
+//             const res = postJsonData(url, obj);
+//             if (res) {
+//                 btn[i].innerHTML = `<i class ="fa fa-check" style="color:white;"></i>` + ` Added`;
+//             }else {
+//                 alert('no product left')
+//             }
+//         }
+//
+//     }
+//
+//
+// }
+
+
 export function addDealToCart() {
     const btn = document.getElementsByClassName('addToCartBtn2');
 
     for (let i = 0; i < btn.length; i++) {
 
-        btn[i].onclick = (e) => {
-
+        btn[i].onclick = async (e) => {
+            let iconClass;
+            let btnText;
+            let obj = {}
             const deal_id = e.target.id;
-            const url = '/api/cart/all';
-            const obj = {
-                deal_id: deal_id
+            let url;
+            if (btn[i].classList.contains('addToCartBtn2') && btn[i].classList.contains('removeFromCartBtn2')) { // jb remove krna ho
+
+                url = `/api/cart/remove-from-cart/${deal_id}`;// yha url dekh lena
+
+                iconClass = 'fa-cart-plus';
+                btnText = 'Add to cart';
+                btn[i].classList.toggle('removeFromCartBtn2');
+
+                console.log('removed from cart')
+            } else if (btn[i].classList.contains('addToCartBtn2')) { // jb add krna ho
+
+                url = '/api/cart/all';
+                iconClass = 'fa-check';
+                obj = {
+                    deal_id
+                }
+                btnText = 'Added';
+                btn[i].classList.toggle('removeFromCartBtn2');
+                console.log('added to cart')
             }
-            const res = postJsonData(url, obj);
+
+            disableBtn(e.target);
+            const res = await postJsonData(url, obj);
             if (res) {
-                btn[i].innerHTML = `<i class ="fa fa-check" style="color:white;"></i>` + ` Added`;
-            }else {
-                alert('no product left')
+                btn[i].innerHTML = `<i class ="fa ${iconClass}" style="color:white;"></i>` + `  ${btnText}`;
+            } else {
+                alert('Operation Failed')
             }
+            enableBtn(e.target);
+
         }
 
     }
 
 
 }
+
+/*
+export function addDealToCart() {
+    const btn = document.getElementsByClassName('addToCartBtn2');
+
+    for (let i = 0; i < btn.length; i++) {
+
+        btn[i].onclick = async (e) => {
+            let iconClass;
+            let btnText;
+            const deal_id = e.target.id;
+            let url;
+            const obj = {
+                deal_id: deal_id
+            }
+            if (btn[i].classList.contains('addToCartBtn2') && btn[i].classList.contains('removeFromCartBtn2')) { // jb remove krna ho
+                 url = 'https://jsonplaceholder.typicode.com/posts' // yha url dekh lena
+                 iconClass = 'fa-cart-plus';
+                 btnText = 'Add to cart';
+                 btn[i].classList.toggle('removeFromCartBtn2');
+                 console.log('removed from cart')
+            }
+            else if (btn[i].classList.contains('addToCartBtn2')){ // jb add krna ho
+                url = '/api/cart/all';
+                iconClass = 'fa-check';
+                btnText = 'Added';
+                btn[i].classList.toggle('removeFromCartBtn2');
+                console.log('added to cart')
+            }
+
+            disableBtn(e.target);
+            const res = await postJsonData(url, obj);
+                if (res) {
+                    btn[i].innerHTML = `<i class ="fa ${iconClass}" style="color:white;"></i>` + `  ${btnText}`;
+                } else {
+                    alert('Operation Failed')
+                }
+            enableBtn(e.target);
+
+        }
+
+    }
+
+
+}
+ */

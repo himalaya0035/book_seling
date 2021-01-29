@@ -98,8 +98,6 @@ export function validationUtility() {
                     last_name: firstSection[1].value
                 }
             }
-            console.log(obj)
-
             const res = await fetch(url, {
                 method: 'PUT',
                 headers: {

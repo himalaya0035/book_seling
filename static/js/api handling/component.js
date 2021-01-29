@@ -1,5 +1,5 @@
-export function constructSidebar(isAuthenticated,NameOfUser){
-    if (isAuthenticated){
+export function constructSidebar(isAuthenticated, NameOfUser) {
+    if (isAuthenticated) {
         return (
             `
             <div class="mobileSidebar">
@@ -8,7 +8,7 @@ export function constructSidebar(isAuthenticated,NameOfUser){
                     <div class="imgbox4">
                         <a href="/" aria-label="visit homepage"><img src="/static/images/open-book.svg" alt="" /></a>
                     </div>
-                    <a href="profile.html" aria-label="view your profile" style="text-decoration: none;" ><h3>Hi ${NameOfUser}</h3></a>
+                    <a href="/profile" aria-label="view your profile" style="text-decoration: none;" ><h3>Hi ${NameOfUser}</h3></a>
                 </div>
                 <div class="cross">
                     <i class="fa fa-close"></i>
@@ -17,7 +17,7 @@ export function constructSidebar(isAuthenticated,NameOfUser){
             <hr />
             <ul class="sidebarList">
                 <li>
-                    <a href="/index" aria-label="visit homepage"><i class="fa fa-home" ></i> Home</a>
+                    <a href="/" aria-label="visit homepage"><i class="fa fa-home" ></i> Home</a>
                 </li>
                 <li>
                     <a href="orders.html"  aria-label="check your orders"><i class="fa fa-file"></i> Your Orders</a>
@@ -31,6 +31,9 @@ export function constructSidebar(isAuthenticated,NameOfUser){
             </ul>
             <hr />
             <ul class="sidebarList">
+            <li>
+                    <a href="beAsellerForm.html" aria-label="be a seller"><img src="/static/images/seller.svg" width="20" style="margin-right:0px;"> Be a Seller</a>
+                </li>
                 <li>
                     <a href="accounts.html" aria-label="manage accounts"><i class="fa fa-user"></i> Accounts</a>
                 </li>
@@ -39,16 +42,10 @@ export function constructSidebar(isAuthenticated,NameOfUser){
                 </li>
             </ul>
             <hr />
-            <ul class="sidebarList">
-                <li>
-                    <a href="" aria-label="change appearance"><i class="fa fa-lightbulb-o"></i> Change mode</a>
-                </li>
-            </ul>
         </div>
             `
         )
-    }
-    else {
+    } else {
         return (
             `
             <div class="mobileSidebar">
@@ -90,21 +87,16 @@ export function constructSidebar(isAuthenticated,NameOfUser){
                 </li>
             </ul>
             <hr />
-            <ul class="sidebarList">
-                <li>
-                    <a href="" aria-label="change appearance"><i class="fa fa-lightbulb-o"></i> Change mode</a>
-                </li>
-            </ul>
         </div>
             `
         )
     }
 }
 
-export function constructTopBar(pageName,previousLink,NextLink) {
-   if(NextLink){
-    return (
-        ` <div class="fixedPosition">
+export function constructTopBar(pageName, previousLink, NextLink) {
+    if (NextLink) {
+        return (
+            ` <div class="fixedPosition">
         <div class="topBar">
             <a href="javascript: void(0)" aria-label="toggle sidebar" class="sidebarToggler"><i class="fa fa-bars"
                     style="font-size: 20px; font-weight: 100;"></i></a>
@@ -113,14 +105,13 @@ export function constructTopBar(pageName,previousLink,NextLink) {
             </div>
             <a href="${previousLink}" aria-label="visit previous page" class="backBtn"><i class="fa fa-angle-left"
                     style="font-size: 20px; font-weight: 100;"></i></a>
-            <a href="${NextLink}" aria-label="visit next page" class="backBtn"><i class="fa fa-angle-right"
+            <a id="nextLink" href="${NextLink}" aria-label="visit next page" class="backBtn"><i class="fa fa-angle-right"
                     style="font-size: 20px; font-weight: 100;"></i></a>
         </div>
     </div>`
-    )
-   }
-   else {
-       return (
+        )
+    } else {
+        return (
             ` <div class="fixedPosition">
             <div class="topBar">
                 <a href="javascript: void(0)" class="sidebarToggler"><i class="fa fa-bars"
@@ -132,12 +123,12 @@ export function constructTopBar(pageName,previousLink,NextLink) {
                         style="font-size: 20px; font-weight: 100;"></i></a>
             </div>
         </div>`
-        
-       )
-   }
+
+        )
+    }
 }
 
-export function constructHomepageTopBar(genreNames){
+export function constructHomepageTopBar(genreNames) {
     return (
         `
         <div class="fixedPosition">

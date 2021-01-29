@@ -2,21 +2,16 @@ import {constructSection} from "./constructSection.js";
 import {constructSidebar, constructTopBar} from "./component.js";
 import * as utility from "./utilities.js";
 
-const bookID = window.location.pathname.split('/')[2]
-const baseURL = `${window.location.protocol}//${window.location.host}/api/books`;
-const bookDataURL = `${baseURL}/${bookID}`
+const bookID = window.location.pathname.split('/')[2];
+const bookDataURL = `/api/books/${bookID}`;
+const similarBookDataURL = `/api/books/${bookID}/similar`;
 
 const rootElement = document.getElementById("rootElement");
-var loader = document.getElementById("loader");
-var contentWrapper;
+let loader = document.getElementById("loader");
+let contentWrapper;
 let bookName;
 
-// let allOffersUrl =
-
 function constructItemAndDescSection(data) {
-    // yha pe data ko jaise bhi break krna ho section me wo krna like
-    // let bookDesc = data[0].bookDesc; example
-    // uske baad aise ${} usko render kr dena
     bookName = data.name;
     return `
         <div class="bookItem">
@@ -46,8 +41,8 @@ function constructItemAndDescSection(data) {
     <div class="pillsScroller bookGenres" style="padding-left:10px ;">
     
     <div>
-        <a href="genre.html" class="pill">${data.genre_names[0]}</a>
-        ${data.genre_names[1] ? `<a href="genre.html" class="pill">${data.genre_names[1]}</a>` : ``}
+        <a href=/genre/${data.genre_names[0]}/books class="pill">${data.genre_names[0]}</a>
+        ${data.genre_names[1] ? `<a href=/genre/${data.genre_names[1]}/books class="pill">${data.genre_names[1]}</a>` : ``}
         </div>
        
     
@@ -62,25 +57,19 @@ function constructItemAndDescSection(data) {
 }
 
 function constructSimilarBooksSection(data) {
-    // similar books ki array ki length bhi nikalana yha
-    var similarBooks = "";
-    for (let i = 0; i < 5; i++) {
-        // ye 5 bs sample ke liye liya hai maine, array length ayega yha
-        let obj = {
-            // pichle section ki treh yha bhi data break krna, data[i].jsonKey
-            // uske baad niche html me ${obj.variableName} aise put krdena
-            // imageUrl = data[i].bookImg example
-        };
+    let similarBooks = "";
+    for (let i = 0; i < data.length; i++) {
+
         similarBooks +=
             `
         <div class="homepageBook">
             <div class="coverImgHolder">
-                <a href="book.html"><img src="images/book1.jpeg" alt="" /></a>
+                <a href=/book/${data[i].ISBN}><img src=${data[i].cover_image} alt="" /></a>
             </div>
-            <p class="bookName">Rich Dad Poor Dad</p>
+            <p class="bookName">${data[i].name}</p>
             <div class="ratingAndPrice">
-                <h6 class="homepageBookPrice">Rs 399</h6>
-                <h6 class="homepageBookRating">4.7&#9733;</h6>
+                <h6 class="homepageBookPrice">Rs ${data[i].lowest_price}</h6>
+                <h6 class="homepageBookRating">${data[i].rating}&#9733;</h6>
             </div>
         </div>
         `
@@ -97,8 +86,7 @@ function constructSimilarBooksSection(data) {
 }
 
 function constructAllOffers(data) {
-    console.log(data)
-    var sectionBooks = '';
+    let sectionBooks = '';
     for (let i = 0; i < data.length; i++) {
         sectionBooks +=
             `
@@ -125,6 +113,7 @@ function constructAllOffers(data) {
     `
     )
 }
+
 let NameOfUser;
 let isAuthenticated = false;
 
@@ -133,7 +122,6 @@ async function contsructBookPage(bookDataUrl, similarBooksUrl) {
 
     try {
         NameOfUser = await constructSection('/api/accounts/profile', utility.getUser);
-        console.log(NameOfUser);
         isAuthenticated = true;
     } catch (e) {
         NameOfUser = 'Guest';
@@ -143,7 +131,7 @@ async function contsructBookPage(bookDataUrl, similarBooksUrl) {
     let similarBooksSectionHtml = await constructSection(similarBooksUrl, constructSimilarBooksSection);
     let allOffersHtml = await constructSection(`/api/cart/deals/${bookID}`, constructAllOffers)
     let mobilesidebarHtml = constructSidebar(isAuthenticated, NameOfUser); // is function ko phle component.js me check krle, tab arguements jo diye wo smj jayega
-    let topBarHtml = constructTopBar("Book", "index.html", "cart.html"); // jo bhi django ke according link ho wo daal diyo
+    let topBarHtml = constructTopBar("Book", "/", "cart.html"); // jo bhi django ke according link ho wo daal diyo
     let offersModal = `
     <div id="myModal" class="modal">
 
@@ -171,12 +159,12 @@ async function contsructBookPage(bookDataUrl, similarBooksUrl) {
     utility.loadUtilityJs();
     utility.manageBookNameLength()
     utility.manageAboutSection(bookName);
-    utility.addDealToCart()
+    utility.addDealToCart();
     utility.toggleButton("bookmark", "fa-bookmark", "fa-bookmark-o", "Bookmarked", "Bookmark");
     utility.toggleButton("addToCartBtn", "fa-check", "fa-cart-plus", "Added", "Add to Cart");
     utility.loadAccountModalJs();
 }
 
-contsructBookPage(bookDataURL, "https://jsonplaceholder.typicode.com/todos/1", true)
-    .then(() => console.log("prmoise resolved"))
+contsructBookPage(bookDataURL, similarBookDataURL, true)
+    .then(() => console.log("promise resolved"))
     .catch((err) => console.log(err.message));

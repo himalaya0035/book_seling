@@ -9,29 +9,28 @@ var contentWrapper;
 
 
 function constructCartItems(data){
-    
-    // cart items ki length yha nikalana
+
     var cartItems = "";
-    for (let i=0;i<2;i++){
-        let obj = {
-            // sara data per item yha extract krna
-        }
+    for (let i=0;i<data.length;i++){
+
+        console.log(data)
+
         cartItems += `
         <div class="item">
         <div class="coverImgHolder">
-            <img loading="lazy" src="images/book2.jpg" alt="">
+            <img loading="lazy" src=${data[i].book_data.cover_image} alt="">
         </div>
         <div class="cartBookInfo">
-            <p class="cartBookName">The Subtle art of not giving a fuck</p>
-            <p class="authorName">Mark Manson</p>
+            <p class="cartBookName">${data[i].book_data.name}</p>
+            <p class="authorName">${data[i].book_data.author_names[0]}</p>
             <div class="priceRating">
-                <p class="cartBookPrice">Rs 394</p>
-                <p class="cartBookRating"><i class="fa fa-star"></i> 4.5</p>
+                <p class="cartBookPrice">Rs ${data[i].deal_price}</p>
+                <p class="cartBookRating"><i class="fa fa-star"></i> ${data[i].book_data.rating}</p>
             </div>
             <div class="options">
                 <div class="qty">
-                    <button class="increaseQuantity"><i class="fa fa-plus"></i></button>
-                    <input type="number" readonly="true"  name="" id="" value="1" class="itemQuantity">
+                    <button class="increaseQuantity" id=${data[i].deal}><i class="fa fa-plus"></i></button>
+                    <input type="number" readonly="true"  name="" id="" value=${data[i].quantity} class="itemQuantity">
                     <button class="decreaseQuantity"><i class="fa fa-minus"></i></button>
                 </div>
                 <button class="deleteCartItem"><i class="fa fa-trash"></i> Delete</button>
@@ -73,18 +72,18 @@ async function constructCartPage(urlOne, isAuthenticated){
                             </div>
                         </div>
                         <div class="moveToCheckout" style="display: flex; align-items: center; justify-content: center;">
-                             <a href="checkout.html" style="color: white; text-decoration: none; font-weight: bold; font-size: 1.17em; display: block;">Checkout Now <i class="fa fa-angle-right" style="font-weight: normal;"></i></a>
+                             <a href="checkout.html" id="checkoutBtn" style="color: white; text-decoration: none; font-weight: bold; font-size: 1.17em; display: block;">Checkout Now <i class="fa fa-angle-right" style="font-weight: normal;"></i></a>
                         </div>
-
                 </div>
                 `
-    
+
     rootElement.innerHTML = sidebarHtml + contentWrapper
     utility.disableLoader(rootElement,loader);
     orderProcessingUtility();
-    utility.loadUtilityJs();    
-}   
+    utility.manageBookNameLength();
+    utility.loadUtilityJs();
+}
 
-constructCartPage("./js/api handling/sample.json",true)
+constructCartPage("/api/cart/all",true)
   .then(() => console.log("prmoise resolved"))
   .catch((err) => console.log(err.message));

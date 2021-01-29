@@ -16,6 +16,7 @@ from .serializers import AuthorSerializer, BookSerializer, GenreSerializer, Book
 
 
 # todo caching
+# todo permission
 
 class BookListView(ListAPIView):
     queryset = Book.objects.all()
@@ -24,7 +25,8 @@ class BookListView(ListAPIView):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['name', 'author__name', 'genre__name', 'ISBN',
                         'author__id']
-    search_fields = ['name', 'author__name', 'genre__name']
+
+    search_fields = ['^name']
 
 
 class BookActionView(RetrieveUpdateDestroyAPIView):
@@ -37,7 +39,6 @@ class AuthorActionView(RetrieveUpdateDestroyAPIView):
     permission_classes = [UpdateDeleteObjectPermission]
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
-    # lookup_field = 'name'
 
 
 class AuthorListView(ListCreateAPIView):
@@ -79,9 +80,8 @@ class GetRecommendedBooks(APIView):
         if data is None:
             fav_genres = user.fav_genres.all()
 
-            # data = Book.objects.filter(genre__in=fav_genres).order_by('-sold_quantity').filter(
-            #     all_deals__quantity__gt=0).order_by('-rating')[:9]
-            data = Book.objects.filter(genre__in=fav_genres).order_by('-sold_quantity').order_by('-rating')[:9]
+            data = Book.objects.filter(genre__in=fav_genres).order_by('-sold_quantity').filter(
+                all_deals__isnull=False).order_by('-rating')[:9]
             data = BookIconSerializer(data, many=True).data
 
             cache.set(f'{user.id}', data, 60 * 20)
@@ -92,7 +92,7 @@ class GetRecommendedBooks(APIView):
 
 class BestSellerView(ListAPIView):
     serializer_class = BookIconSerializer
-    queryset = Book.objects.order_by('-date_created').order_by('-rating')[:9]
+    queryset = Book.objects.order_by('-date_created').filter(all_deals__isnull=False).order_by('-rating')[:9]
 
 
 class TopAuthors(ListAPIView):

@@ -42,7 +42,7 @@ class Book(models.Model):
     author = models.ManyToManyField(Author, blank=False)
     genre = models.ManyToManyField(Genre)
     cover_image = models.ImageField(upload_to='book_images')
-    rating = models.DecimalField(max_digits=3, decimal_places=2, default=5)
+    rating = models.DecimalField(max_digits=2, decimal_places=1, default=5)
     info = models.CharField(max_length=1000)
     released_date = models.DateTimeField()
     date_created = models.DateTimeField(auto_now_add=True)

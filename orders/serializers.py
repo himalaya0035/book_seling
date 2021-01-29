@@ -6,23 +6,17 @@ from books.serializers import BookIconSerializer
 from .models import Bookmark, ProductOrderOrCart
 
 
-class CartProductSerializer(serializers.ModelSerializer):
-    deal_data = serializers.SerializerMethodField('get_deal_data')
-    deal_id = serializers.IntegerField()
-    quantity = serializers.IntegerField(read_only=True)
-    available_stock = serializers.IntegerField(required=False, read_only=True)
-
-    class Meta:
-        model = ProductOrderOrCart
-        fields = ['id', 'deal_data', 'quantity', 'deal_id', 'available_stock']
-
-    def get_deal_data(self, instance: ProductOrderOrCart, *args, **kwargs):
-        return BookIconSerializer(instance.deal.product, remove_fields=['lowest_price']).data
-
-
 class BookListSerializer(serializers.ModelSerializer):
     author_names = serializers.SerializerMethodField()
     lowest_price = serializers.SerializerMethodField()
+
+    def __init__(self, *args, **kwargs):
+
+        remove_fields = kwargs.pop('remove_fields', None)
+        super(BookListSerializer, self).__init__(*args, **kwargs)
+        if remove_fields:
+            for remove_field in remove_fields:
+                self.fields.pop(remove_field)
 
     class Meta:
         model = Book
@@ -47,3 +41,19 @@ class DealSerializer(serializers.ModelSerializer):
     def get_seller(self, instance: Deal, *args, **kwargs):
         profile: Profile = instance.seller.user.profile
         return {'rating': profile.rating, 'firm_name': profile.firm_name}
+
+
+class CartProductSerializer(serializers.ModelSerializer):
+    book_data = serializers.SerializerMethodField()
+    deal_price = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ProductOrderOrCart
+        fields = ['book_data', 'quantity', 'deal', 'deal_price']
+
+    def get_book_data(self, instance: ProductOrderOrCart, *args, **kwargs):
+        book_obj = instance.deal.product
+        return BookListSerializer(book_obj, remove_fields=['lowest_price']).data
+
+    def get_deal_price(self, instance: ProductOrderOrCart, *args, **kwargs):
+        return instance.deal.price
