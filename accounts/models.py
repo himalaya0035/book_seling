@@ -2,11 +2,19 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.signals import post_save, post_delete
+from .tasks import send_email_to_user
 
 
-def auto_prof_create(sender, instance, created, **kwargs):
+def auto_prof_create(sender, instance: User, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
+
+        subject = "ThankYou Registering"
+
+        print(instance.email)
+        body = f"Hey {instance.first_name} Welcome to BookStore. "
+
+        send_email_to_user.delay([instance.email], subject, body)
 
 
 def auto_user_delete(sender, instance, *args, **kwargs):
@@ -53,3 +61,12 @@ class ProfileProxy(Profile):
 
 post_save.connect(auto_prof_create, sender=User)
 post_delete.connect(auto_user_delete, sender=Profile)
+
+
+"""
+
+{'user': {'username': 'priyansh2001', 'first_name': 'Priyansh', 'last_name': 'Singh', 'password': 'Fiitjee13', 'fav_genres': ['Business', 'Crime Thriller', 'History', 'Pyschology', 'Self Help']}, 'address': '113 North City Pilibhit Road Bareilly', 'contact_number': '7618166335'}
+
+{'user': {'username': 'priyansh2001', 'first_name': 'Priyansh', 'last_name': 'Singh', 'password': 'Fiitjee13', 'fav_genres': ['Cooking', 'Historical Fiction', 'Physics']}, 'address': '113 North City Pilibhit Road Bareilly', 'contact_number': '7618166335'}
+
+"""

@@ -34,13 +34,28 @@ async function manageQuantity(e) {
 
     } else if (clickedBtn.classList.contains('decreaseQuantity')) {
         // decrease quantity post request here
-        url = '/api/cart/all';
-        obj = {
-            deal_id: deal_id
-        }
+        var deleteBtns = document.getElementsByClassName('deleteCartItem');
+        url = `/api/cart/update-quantity/${clickedBtn.id}`;
+        obj = {};
         const isPostRequestOk = await postJsonData(url, obj);
         if (isPostRequestOk) {
             input.value = currentQty - 1;
+
+
+            if (input.value == '0'){
+                clickedBtn.closest('.item').remove();
+            }
+            if (deleteBtns.length == 0){
+                var checkoutBtn = document.getElementById('checkoutBtn');
+                var nextLink = document.getElementById('nextLink');
+                document.getElementById('NoBookmarkedMsg').style.display = 'block';
+                checkoutBtn.href="#";
+                checkoutBtn.style.color = "#808080";
+                nextLink.href = "#";
+                nextLink.style.color = '#808080'
+            }
+
+
         } else {
             alert(`couldn't decrease quanity, request failed`)
         }
@@ -89,9 +104,9 @@ export function orderProcessingUtility() {
         nextLink.style.color = '#808080'
     } else {
         document.getElementById('NoBookmarkedMsg').style.display = 'none';
-        checkoutBtn.href = "checkout.html";
+        checkoutBtn.href = "/checkout";
         checkoutBtn.style.color = "white";
-        nextLink.href = "checkout.html";
+        nextLink.href = "/checkout";
         nextLink.style.color = 'white';
     }
 
@@ -115,11 +130,8 @@ export function orderProcessingUtility() {
             var cartItem = clickedDeleteBtn.closest('.item');
             disableDeleteBtn(clickedDeleteBtn);
             // api call here
-            let url = 'https://jsonplaceholder.typicode.com/posts';
+            let url = `/api/cart/remove-from-cart/${clickedDeleteBtn.id}`;
             let obj = {
-                title: 'foo',
-                body: 'bar',
-                userId: 1,
             }
             const isPostRequestOk = await postJsonData(url, obj)
             cartItem.remove();
@@ -134,9 +146,9 @@ export function orderProcessingUtility() {
                 nextLink.style.color = '#808080'
             } else {
                 document.getElementById('NoBookmarkedMsg').style.display = 'none';
-                checkoutBtn.href = "checkout.html";
+                checkoutBtn.href = "/checkout";
                 checkoutBtn.style.color = "white";
-                nextLink.href = "checkout.html";
+                nextLink.href = "/checkout";
                 nextLink.style.color = 'white';
             }
 

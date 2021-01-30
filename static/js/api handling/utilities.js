@@ -329,22 +329,25 @@ export function loadOrderTotalJs() {
     // wo dekhenge kaise kre
 }
 
-let arrayForResults = [];
+var arrayForResults = [];
+var count = 0;
 
 function filterData(data, searchText) {
     if (data) {
         arrayForResults = data;
+        count = 1;
     }
     let matches = arrayForResults.filter(arrElement => {
         const regex = new RegExp(`^${searchText}`, 'gi');
         return arrElement.name.match(regex)
     })
-    outputHtml(matches)
+    outputHtml(matches, searchText, count)
 }
 
-function outputHtml(matches) {
-    let searchResults = document.getElementById('searchResults');
-    searchResults.innerHTML = matches.map(match => `<div class="result" href="">
+
+function outputHtml(matches, searchText, count) {
+    var searchResults = document.getElementById('searchResults');
+    let html = matches.map(match => `<div class="result">
         <div class="resultImg">
             <a href=/book/${match.ISBN}><img src="${match.cover_image}" alt=""></a>
         </div>
@@ -353,7 +356,13 @@ function outputHtml(matches) {
         </div>
      </div>`
     ).join('');
+    if (matches.length === 0 && count === 1) {
+        searchResults.innerHTML = `<p style="display:flex; justify-content:center; margin-top:40px; color:#808080; text-align:center;">No search Result Found <br> with keyword "${searchText}"</p>`
+    } else {
+        searchResults.innerHTML = html;
+    }
 }
+
 
 function enableSearchLoader(loader) {
     loader.style.display = 'block';
@@ -384,6 +393,7 @@ export function manageSearchResults() {
             searchIcon.classList.add('fa-close');
             if (searchBox.value.length === 1) {
                 arrayForResults = [];
+                count = 0;
                 enableSearchLoader(loader2)
                 let aisehi = await constructSection(`/api/books/all?search=${searchBox.value}`, filterData, searchBox.value);
                 disableSearchLoader(loader2)
@@ -392,6 +402,7 @@ export function manageSearchResults() {
             }
         } else {
             searchResults.style.display = 'none';
+            disableSearchLoader(loader2);
             searchIcon.classList.remove('fa-close');
             searchResults.innerHTML = '';
         }
@@ -403,31 +414,6 @@ export function getUser(data) {
     return data.user.first_name
 
 }
-
-// export function addDealToCart() {
-//     const btn = document.getElementsByClassName('addToCartBtn2');
-//
-//     for (let i = 0; i < btn.length; i++) {
-//
-//         btn[i].onclick = (e) => {
-//
-//             const deal_id = e.target.id;
-//             const url = '/api/cart/all';
-//             const obj = {
-//                 deal_id: deal_id
-//             }
-//             const res = postJsonData(url, obj);
-//             if (res) {
-//                 btn[i].innerHTML = `<i class ="fa fa-check" style="color:white;"></i>` + ` Added`;
-//             }else {
-//                 alert('no product left')
-//             }
-//         }
-//
-//     }
-//
-//
-// }
 
 
 export function addDealToCart() {

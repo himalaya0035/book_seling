@@ -22,6 +22,7 @@ import debug_toolbar
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 from .decorators import AnonymousRequired
+from django.views.decorators.cache import cache_page, cache_control
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -49,6 +50,7 @@ urlpatterns += [
     path('profile', login_required(TemplateView.as_view(template_name='profile.html'))),
     path('bookmark', login_required(TemplateView.as_view(template_name='bookmarked.html'))),
     path('cart', login_required(TemplateView.as_view(template_name='cart.html'))),
+    path('checkout', login_required(TemplateView.as_view(template_name='checkout.html')))
 ]
 
 urlpatterns = urlpatterns + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

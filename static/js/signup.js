@@ -316,7 +316,8 @@ submitBtn.onclick = async () => {
             first_name,
             last_name,
             password: password.value,
-            fav_genres: genre_names
+            fav_genres: genre_names,
+            email: email.value
         },
         address: address.value,
         contact_number: contact.value

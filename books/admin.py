@@ -7,6 +7,8 @@ admin.site.register((Author, Deal))
 
 class GenreAdmin(admin.ModelAdmin):
 
+    search_fields = ['name']
+
     def has_add_permission(self, request):
         return False
 
@@ -19,6 +21,9 @@ class GenreAdmin(admin.ModelAdmin):
 
 class BookAdmin(admin.ModelAdmin):
     exclude = ['created_by']
+
+    search_fields = ['name']
+    list_filter = ['sold_quantity', 'released_date']
 
     def save_model(self, request, obj, form, change):
         obj.created_by = request.user

@@ -23,7 +23,7 @@ export function constructSidebar(isAuthenticated, NameOfUser) {
                     <a href="orders.html"  aria-label="check your orders"><i class="fa fa-file"></i> Your Orders</a>
                 </li>
                 <li>
-                    <a href="cart.html" aria-label="visit cart "><i class="fa fa-shopping-cart" ></i> View Cart</a>
+                    <a href="/cart" aria-label="visit cart "><i class="fa fa-shopping-cart" ></i> View Cart</a>
                 </li>
                 <li>
                     <a href="/bookmark" aria-label="view bookmarked pages"><i class="fa fa-bookmark"></i> Bookmarked</a>
@@ -131,7 +131,7 @@ export function constructTopBar(pageName, previousLink, NextLink) {
 export function constructHomepageTopBar(genreNames) {
     return (
         `
-        <div class="fixedPosition">
+        <div class="fixedPosition" style="z-index: 8;">
         <div class="topBar">
             <a href="javascript: void(0)" aria-label="toggle sidebar" class="sidebarToggler"><i class="fa fa-bars"
                     style="font-size: 25px; font-weight: 100"></i></a>
@@ -140,7 +140,7 @@ export function constructHomepageTopBar(genreNames) {
                     placeholder="Search Books, Authors..." />
                 <a href="javascript: void(0)" aria-label="search Author, books, genre, etc.." class="searchBtn"><i class="fa fa-search" id="searchIcon" style="font-size: 15px"></i></a>
             </div>
-            <a href="cart.html" aria-label="view cart" class="cartToggler"><i class="fa fa-shopping-cart"
+            <a href="/cart" aria-label="view cart" class="cartToggler"><i class="fa fa-shopping-cart"
                     style="font-size: 25px; font-weight: 100"></i></a>
         </div>
         <div class="categoriesPills">

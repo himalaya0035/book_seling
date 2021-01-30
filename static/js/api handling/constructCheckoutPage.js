@@ -1,12 +1,13 @@
-import { constructSection } from "./constructSection.js";
-import { constructSidebar, constructTopBar } from "./component.js";
+import {constructSection} from "./constructSection.js";
+import {constructSidebar, constructTopBar} from "./component.js";
 import * as utility from "./utilities.js";
+import {validationUtility} from "./validationUtility.js";
 
 const rootElement = document.getElementById("rootElement");
 var loader = document.getElementById("loader");
 var contentWrapper;
 
-function constructDeliveryForm(data){
+function constructDeliveryForm(data) {
     // data extract krna ha pr
     // niche wala form prefilled hona chaiye toh saari values nikalke input tag ke value me rkh dena
     return (
@@ -39,13 +40,13 @@ function constructDeliveryForm(data){
                                     </div>
                                 </div>
                                  <label class="fieldlabels">FirstName :</label> <input
-                                type="text" name="firstName" placeholder="First Name" id="fname" class="loginField" /> <label
+                                type="text" name="firstName" placeholder="First Name" id="fname" class="loginField sectionFirst" /> <label
                                 class="fieldlabels">Contact No :</label> <input type="number" name="pwd"
-                                placeholder="Contact No" id="contactNo" class="loginField"/> 
+                                placeholder="Contact No" id="contact" class="loginField sectionFirst"> 
                                 <label class="fieldlabels">Email :</label> <input
-                                type="email" name="email" placeholder="Email" id="emailId" class="loginField" /> 
+                                type="email" name="email" placeholder="Email" id="emailId" class="loginField sectionFirst" > 
                                 <label class="fieldlabels">Delivery Address : (Min 30 characters)</label> <input
-                                type="text" name="DeliveryAddress" placeholder="Delivery Address" id="deliveryAddress" class="loginField" /> 
+                                type="text" name="DeliveryAddress" placeholder="Delivery Address" id="address" class="loginField sectionFirst" /> 
                         </div> 
                         </fieldset>
                     
@@ -59,29 +60,39 @@ function constructDeliveryForm(data){
     )
 }
 
-let NameOfUser = "Priyansh Singh"; // ye data kaise nikalna hai api se wo dekhlena
-let userId = 1;
+let NameOfUser;
+let isAuthenticated = false;
 
-async function constructCheckoutPage(urlOne,isAuthenticated){
-    utility.enableLoader(rootElement,loader);
-    let deliveryFormHtml = await constructSection(urlOne,constructDeliveryForm);
-    let topbarHtml = constructTopBar('Checkout','cart.html','confirmOrder.html');
-    let sidebarHtml = constructSidebar(isAuthenticated,userId,NameOfUser)
+
+async function constructCheckoutPage(urlOne) {
+    utility.enableLoader(rootElement, loader);
+
+    try {
+        NameOfUser = await constructSection('/api/accounts/profile', utility.getUser);
+        isAuthenticated = true;
+    } catch (e) {
+        NameOfUser = 'Guest';
+    }
+
+    let deliveryFormHtml = await constructSection(urlOne, constructDeliveryForm);
+    let topbarHtml = constructTopBar('Checkout', 'cart.html', 'confirmOrder.html');
+    let sidebarHtml = constructSidebar(isAuthenticated, NameOfUser)
     contentWrapper = `
             <div class ="contentWrapper">
                 ${topbarHtml}
                 ${deliveryFormHtml}
                 <div class="moveToCheckout proceedToPayment" style="display: flex; align-items: center; justify-content: center;">
-                    <a href="confirmOrder.html" style="color: white; text-decoration: none; font-weight: bold; font-size: 1.17em; display: block;">Confirm Order <i class="fa fa-angle-right" style="font-weight: normal;"></i></a>
+                    <a href="confirmOrder.html" id="paymentBtn" style="color: white; text-decoration: none; font-weight: bold; font-size: 1.17em; display: block;">Confirm Order <i class="fa fa-angle-right" style="font-weight: normal;"></i></a>
                 </div>
             </div>
     `
     rootElement.innerHTML = sidebarHtml + contentWrapper;
-    utility.disableLoader(rootElement,loader)
+    utility.disableLoader(rootElement, loader)
+    validationUtility();
     utility.loadUtilityJs();
 
 }
 
-constructCheckoutPage("https://jsonplaceholder.typicode.com/todos/1",true)
-  .then(() => console.log("prmoise resolved"))
-  .catch((err) => console.log(err.message));
+constructCheckoutPage("https://jsonplaceholder.typicode.com/todos/1", true)
+    .then(() => console.log("prmoise resolved"))
+    .catch((err) => console.log(err.message));

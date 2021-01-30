@@ -48,7 +48,7 @@ div.mobileSidebar {
     width: 280px;
     height: 100%;
     background-color: white;
-    z-index: 10;
+    z-index: 50;
     transition: 0.5s;
     border-right: 1px solid #CECFCD;
 }

@@ -1,17 +1,17 @@
-import { constructSection } from "./constructSection.js";
-import { constructSidebar, constructTopBar } from "./component.js";
+import {constructSection} from "./constructSection.js";
+import {constructSidebar, constructTopBar} from "./component.js";
 import * as utility from "./utilities.js";
-import { orderProcessingUtility } from './orderProcessingUtilities.js';
+import {orderProcessingUtility} from './orderProcessingUtilities.js';
 
 const rootElement = document.getElementById("rootElement");
 var loader = document.getElementById("loader");
 var contentWrapper;
 
 
-function constructCartItems(data){
+function constructCartItems(data) {
 
     var cartItems = "";
-    for (let i=0;i<data.length;i++){
+    for (let i = 0; i < data.length; i++) {
 
         console.log(data)
 
@@ -31,9 +31,9 @@ function constructCartItems(data){
                 <div class="qty">
                     <button class="increaseQuantity" id=${data[i].deal}><i class="fa fa-plus"></i></button>
                     <input type="number" readonly="true"  name="" id="" value=${data[i].quantity} class="itemQuantity">
-                    <button class="decreaseQuantity"><i class="fa fa-minus"></i></button>
+                    <button class="decreaseQuantity" id=${data[i].deal}><i class="fa fa-minus"></i></button>
                 </div>
-                <button class="deleteCartItem"><i class="fa fa-trash"></i> Delete</button>
+                <button class="deleteCartItem" id=${data[i].deal}><i class="fa fa-trash"></i> Delete</button>
             </div>
         </div>
     </div>
@@ -48,14 +48,23 @@ function constructCartItems(data){
     )
 }
 
-let NameOfUser = "Priyansh Singh"; // ye data kaise nikalna hai api se wo dekhlena
-let userId = 1;
+let NameOfUser;
+let isAuthenticated = false;
 
-async function constructCartPage(urlOne, isAuthenticated){
-    utility.enableLoader(rootElement,loader);
-    let cartItemsHtml = await constructSection(urlOne,constructCartItems);
-    let topbarHtml = constructTopBar('Cart','index.html','checkout.html');
-    let sidebarHtml = constructSidebar(isAuthenticated,userId,NameOfUser);
+
+async function constructCartPage(urlOne) {
+    utility.enableLoader(rootElement, loader);
+
+    try {
+        NameOfUser = await constructSection('/api/accounts/profile', utility.getUser);
+        isAuthenticated = true;
+    } catch (e) {
+        NameOfUser = 'Guest';
+    }
+
+    let cartItemsHtml = await constructSection(urlOne, constructCartItems);
+    let topbarHtml = constructTopBar('Cart', '/', '/checkout');
+    let sidebarHtml = constructSidebar(isAuthenticated, NameOfUser);
     contentWrapper = `
                 <div class="contentWrapper">
                         ${topbarHtml}
@@ -72,18 +81,18 @@ async function constructCartPage(urlOne, isAuthenticated){
                             </div>
                         </div>
                         <div class="moveToCheckout" style="display: flex; align-items: center; justify-content: center;">
-                             <a href="checkout.html" id="checkoutBtn" style="color: white; text-decoration: none; font-weight: bold; font-size: 1.17em; display: block;">Checkout Now <i class="fa fa-angle-right" style="font-weight: normal;"></i></a>
+                             <a href="/checkout" id="checkoutBtn" style="color: white; text-decoration: none; font-weight: bold; font-size: 1.17em; display: block;">Checkout Now <i class="fa fa-angle-right" style="font-weight: normal;"></i></a>
                         </div>
                 </div>
                 `
 
     rootElement.innerHTML = sidebarHtml + contentWrapper
-    utility.disableLoader(rootElement,loader);
+    utility.disableLoader(rootElement, loader);
     orderProcessingUtility();
     utility.manageBookNameLength();
     utility.loadUtilityJs();
 }
 
-constructCartPage("/api/cart/all",true)
-  .then(() => console.log("prmoise resolved"))
-  .catch((err) => console.log(err.message));
+constructCartPage("/api/cart/all", true)
+    .then(() => console.log("prmoise resolved"))
+    .catch((err) => console.log(err.message));

@@ -12,13 +12,3 @@ urlpatterns = [
     path('deals/<slug:pk>', views.GetDealOfBook.as_view()),
 
 ]
-
-"""
-/api/int
-
-/api 
-{
-x: 'y'
-}
-
-"""

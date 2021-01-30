@@ -11,7 +11,7 @@ from books.serializers import BookSerializer
 from .models import Order
 from .models import ProductOrderOrCart, Bookmark, Promocode, ShippingAddress
 from .serializers import CartProductSerializer, DealSerializer
-from .utils import remove_out_of_stock_products, update_deal_and_book_data
+from .tasks import remove_out_of_stock_products, update_deal_and_book_data
 
 
 # class MyThrottle(UserRateThrottle):
@@ -84,8 +84,12 @@ class UpdateQty(APIView):
     def post(self, request, *args, **kwargs):
         pk = kwargs.get('deal_id')
         obj: ProductOrderOrCart = get_object_or_404(ProductOrderOrCart, deal_id=pk)
-        obj.quantity -= 1
-        obj.save()
+
+        if obj.quantity - 1 <= 0:
+            obj.delete()
+        else:
+            obj.quantity -= 1
+            obj.save()
         return Response(status=status.HTTP_200_OK)
 
 
@@ -131,7 +135,8 @@ request payload
         "contact_number":"9412666633",
         "email":"singhpriyansh51001@gmail.com"
     }    
-    }
+}
+
 """
 
 
@@ -166,8 +171,8 @@ class Checkout(APIView):
 
         in_stock.update(cart=None, order=order_obj)
 
-        update_deal_and_book_data(in_stock)
-        remove_out_of_stock_products()
+        update_deal_and_book_data.delay(in_stock)
+        remove_out_of_stock_products.delay()
 
         return Response(status=status.HTTP_201_CREATED)
 

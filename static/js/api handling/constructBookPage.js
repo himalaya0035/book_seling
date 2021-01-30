@@ -131,7 +131,7 @@ async function contsructBookPage(bookDataUrl, similarBooksUrl) {
     let similarBooksSectionHtml = await constructSection(similarBooksUrl, constructSimilarBooksSection);
     let allOffersHtml = await constructSection(`/api/cart/deals/${bookID}`, constructAllOffers)
     let mobilesidebarHtml = constructSidebar(isAuthenticated, NameOfUser); // is function ko phle component.js me check krle, tab arguements jo diye wo smj jayega
-    let topBarHtml = constructTopBar("Book", "/", "cart.html"); // jo bhi django ke according link ho wo daal diyo
+    let topBarHtml = constructTopBar("Book", "/", "/cart"); // jo bhi django ke according link ho wo daal diyo
     let offersModal = `
     <div id="myModal" class="modal">
 

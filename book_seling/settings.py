@@ -40,8 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # 'oauth2_provider',
-
     'debug_toolbar',
     'django_extensions',
     'rest_framework',
@@ -52,7 +50,7 @@ INSTALLED_APPS = [
     'orders'
 ]
 
-SITE_ID = 1
+LOGIN_URL = "/login"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -96,16 +94,23 @@ DATABASES = {
         'USER': 'postgres',
         'HOST': 'localhost',
         'PASSWORD': '2315211',
-        'CONN_MAX_AGE': 5
+        # 'CONN_MAX_AGE': 5
     }
 }
 
+REDIS_HOST = os.getenv('REDIS_HOST')
+REDIS_PORT = os.getenv('REDIS_PORT')
+
+BROKER_URL = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
+BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
+CELERY_RESULT_BACKEND = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
+
 CACHES = {
     "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
+        "BACKEND": 'django_redis.cache.RedisCache',
+        "LOCATION": f'redis://{REDIS_HOST}:{REDIS_PORT}/1',
         "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "CLIENT_CLASS": 'django_redis.client.DefaultClient',
         }
     }
 }
@@ -170,9 +175,9 @@ DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.profiling.ProfilingPanel',
 ]
 
-INTERNAL_IPS = [
-    '127.0.0.1',
-]
+# INTERNAL_IPS = [
+#     '127.0.0.1',
+# ]
 
 DEFAULT_RENDERER_CLASSES = [
     'rest_framework.renderers.JSONRenderer',
@@ -230,4 +235,6 @@ EMAIL_USE_TLS = True
 #     }
 # }
 
-LOGIN_URL = "/login"
+# todo
+# https://code.tutsplus.com/tutorials/using-celery-with-django-for-background-task-processing--cms-28732
+# https://django-background-tasks.readthedocs.io/en/latest/

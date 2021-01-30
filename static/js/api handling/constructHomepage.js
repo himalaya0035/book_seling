@@ -19,7 +19,7 @@ function constructBooksSlider(data, sectionName) {
         sliderBooks += `
         <div class="homepageBook">
             <div class="coverImgHolder">
-                <a href="/book/${data[i].ISBN}" aria-label="view Book"><img src=${data[i].cover_image} loading="lazy" alt="" /></a>
+                <a href="/book/${data[i].ISBN}" aria-label="view Book"><img src=${data[i].cover_image} loading="lazy" width="90" height="135" alt="" /></a>
             </div>
             <p class="bookName">${data[i].name}</p>
             <div class="ratingAndPrice">
@@ -73,6 +73,7 @@ function constructAuthorsSlider(data) {
 
 let NameOfUser;
 let isAuthenticated = false;
+
 async function constructHomepage(urlOne, urlTwo, urlThree, urlFour, urlFive) {
 
 
@@ -80,16 +81,18 @@ async function constructHomepage(urlOne, urlTwo, urlThree, urlFour, urlFive) {
     try {
         NameOfUser = await constructSection('/api/accounts/profile', utility.getUser);
         isAuthenticated = true;
-    } catch (e){
+    } catch (e) {
         NameOfUser = 'Guest';
     }
+    let recommendedHtml;
+    if (isAuthenticated)  recommendedHtml= await constructSection(urlTwo, constructBooksSlider, 'Recommended For You');
+
     let bestSellersHtml = await constructSection(urlOne, constructBooksSlider, 'Best Sellers');
-    let recommendedHtml = await constructSection(urlTwo, constructBooksSlider, 'Recommended For You');
     let newReleasesHtml = await constructSection(urlFour, constructBooksSlider, 'New Releases');
     let popularHtml = await constructSection(urlFive, constructBooksSlider, 'Popular');
     let topAuthorsHtml = await constructSection(urlThree, constructAuthorsSlider);
     let topBarHtml = constructHomepageTopBar();
-    let mobilesidebarHtml = constructSidebar(isAuthenticated,NameOfUser);
+    let mobilesidebarHtml = constructSidebar(isAuthenticated, NameOfUser);
     contentWrapper = `<div class ="contentWrapper">
          ${topBarHtml}
          ${bestSellersHtml}

@@ -76,3 +76,31 @@ class Promocode(models.Model):
 
 
 post_save.connect(auto_cart_create, sender=Profile)
+
+"""
+Hey {{name}},
+Thank you for shopping with us.
+
+Order Details:
+
+⏩ Order Total : Rs{{total}}
+⏩ Transaction ID : {{transaction_id}}
+⏩ Order Items : {{items_no}}
+
+Items Ordered :
+    {% for item in items %}
+        📝 {{item}}  Rs{{item.price}}  x{{item.quantity}}
+    {% endfor %}
+
+Delivery Address : {{address}}
+
+Thank you for being a Shree Himalaya Traders customer 😊. We sincerely appreciate your business and hope you come back soon!
+
+
+Regards,
+Shree Himalaya Traders
+
+
+order placed
+
+"""
