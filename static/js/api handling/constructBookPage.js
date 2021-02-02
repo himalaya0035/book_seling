@@ -13,6 +13,11 @@ let bookName;
 
 function constructItemAndDescSection(data) {
     bookName = data.name;
+    const genre1 = data.genre_names[0];
+    const genre2 = data.genre_names[1];
+
+    console.log(typeof genre1, genre1)
+
     return `
         <div class="bookItem">
         <div class="coverImgHolder">
@@ -41,8 +46,8 @@ function constructItemAndDescSection(data) {
     <div class="pillsScroller bookGenres" style="padding-left:10px ;">
     
     <div>
-        <a href=/genre/${data.genre_names[0]}/books class="pill">${data.genre_names[0]}</a>
-        ${data.genre_names[1] ? `<a href=/genre/${data.genre_names[1]}/books class="pill">${data.genre_names[1]}</a>` : ``}
+        <a href=/genre/${genre1.replace(' ', '%20')}/books class="pill">${data.genre_names[0]}</a>
+        ${data.genre_names[1] ? `<a href=/genre/${genre2.replace(' ', '%20')}/books class="pill">${data.genre_names[1]}</a>` : ``}
         </div>
        
     

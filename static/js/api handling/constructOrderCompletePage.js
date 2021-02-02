@@ -5,15 +5,15 @@ import * as utility from "./utilities.js";
 const rootElement = document.getElementById("rootElement");
 var loader = document.getElementById("loader");
 var contentWrapper;
+var shippingMail;
 
-function constructShippingAddress() {
-    // jha se bhi nikalna ho deta nikal lena
-
+function constructShippingAddress(data) {
     let obj = JSON.parse(localStorage.getItem('shipping_address'))
+
     return (
         `
         <div class="shippingAddress">
-            <p>Deliver To : </p>
+                    <p>Deliver To : </p>
             <p id="name">${obj.name}</p>
             <p id="phoneNo">+91 ${obj.contact_number}</p>
             <p id="email">${obj.email}</p>
@@ -29,11 +29,11 @@ function constructOrderTotal(data) {
         <div class="cartDescription">
         <div class="descriptionItems">
             <p>Quantity</p>
-            <p>x${data.total_qty}</p> <!-- // yeh nikalna hai -->
+            <p>x4</p> <!-- // yeh nikalna hai -->
         </div>
         <div class="descriptionItems">
             <p>Cart Total</p>
-            <p id="cartTotal">Rs ${data.total_amount}</p> <!-- yeh bhi nikalana hai -->
+            <p id="cartTotal">Rs 2999</p> <!-- yeh bhi nikalana hai -->
          </div>
         <div class="descriptionItems">
             <p>CGST/SCGT (0%)</p>
@@ -56,11 +56,14 @@ function constructOrderTotal(data) {
     )
 }
 
+
 let NameOfUser;
 let isAuthenticated = false;
 
+
 async function constructConfirmOrderPage(urlOne) {
     utility.enableLoader(rootElement, loader)
+
 
     try {
         NameOfUser = await constructSection('/api/accounts/profile', utility.getUser);
@@ -69,50 +72,39 @@ async function constructConfirmOrderPage(urlOne) {
         NameOfUser = 'Guest';
     }
 
+
     let shippingAddressHtml = constructShippingAddress();
     let orderTotalHtml = await constructSection(urlOne, constructOrderTotal);
-    let topBarHtml = constructTopBar('Confirm Order', '/checkout', undefined);
+    let topBarHtml = constructTopBar('Order Received', '/cart', undefined);
     let sidebarHtml = constructSidebar(isAuthenticated, NameOfUser);
 
     contentWrapper = `
+
                 <div class="contentWrapper">
+                    
                     ${topBarHtml}
+                    <div class="expectedDelivery">
+                        <p>An order confirmation mail has been sent to <span style="font-weight:bolder;"> ${shippingMail} </span></p>
+                     </div>
                     ${shippingAddressHtml}
-                    <div class="promoCode">
-                        <input type="text" id="promocodeinput" placeholder="Promo code #BOOKS50">
-                        <button id="applypromocode">Apply</button>
-                    </div>
                     ${orderTotalHtml}
                     <div class="expectedDelivery">
-                        <p>Get it delivered by <span style="font-weight: bolder;" id="fillDeliveryDate"></span></p>
+                        <p>Order would be delivered by <span style="font-weight: bolder;" id="fillDeliveryDate"></span></p>
                     </div>
-                    <div class="placeOrder" style="display: flex; justify-content: center; margin: 20px 10px 10px 10px;">
-                    <button class="order" style="background:#673AB7;"><span class="default" >Place Order</span><span class="success">Order Placed
-                    <svg viewBox="0 0 12 10">
-                      <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
-                    </svg></span>
-                  <div class="box"></div>
-                  <div class="truck">
-                    <div class="back"></div>
-                    <div class="front">
-                      <div class="window"></div>
-                    </div>
-                    <div class="light top"></div>
-                    <div class="light bottom"></div>
-                  </div>
-                  <div class="lines"></div>
-               
-                </button>
+                    <div class="expectedDelivery">
+                    <p>Thank you for shopping with us !! 😊</p>
+                 </div>
+                    <div class="placeOrder" style="display: flex; justify-content: center; margin: 20px 10px 20px 10px;">
+                        <a href="index.html"  style="text-decoration: none; background-color: #673AB7; color: white; padding: 10px; border-radius: 1px solid white; width: 100%; text-align: center; box-shadow: 0px 0px 3px #673AB7;">Continue Shopping</a>
                     </div>
                 </div>
     `
     rootElement.innerHTML = sidebarHtml + contentWrapper;
     utility.disableLoader(rootElement, loader);
     utility.loadUtilityJs();
-    utility.animateOrderButton();
     utility.loadOrderTotalJs();
 }
 
-constructConfirmOrderPage("/api/cart/checkout", true)
+constructConfirmOrderPage("/api/cart/checkout")
     .then(() => console.log("prmoise resolved"))
     .catch((err) => console.log(err.message));

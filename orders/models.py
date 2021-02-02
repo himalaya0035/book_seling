@@ -33,6 +33,9 @@ class ProductOrderOrCart(models.Model):
             raise ValidationError('product cant be in order and cart at same time')
         super(ProductOrderOrCart, self).save(*args, **kwargs)
 
+    def __str__(self):
+        return self.deal.product.name
+
 
 class Cart(models.Model):
     user = models.OneToOneField(Profile, on_delete=models.CASCADE)
@@ -49,7 +52,7 @@ class ShippingAddress(models.Model):
     contact_number = models.CharField(max_length=13)
     email = models.EmailField()
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
 class Order(models.Model):

@@ -7,13 +7,21 @@ var loader = document.getElementById("loader");
 var contentWrapper;
 
 
-let NameOfUser = "Priyansh Singh"; // ye data kaise nikalna hai api se wo dekhlena
-let userId = 1;
+let NameOfUser;
+let isAuthenticated = false;
 
-function constructAccountsPage(isAuthenticated) {
+async function constructAccountsPage() {
     utility.enableLoader(rootElement, loader);
-    let topBarHtml = constructTopBar('Accounts', 'index.html');
-    let sidebarHtml = constructSidebar(isAuthenticated, userId, NameOfUser);
+
+    try {
+        NameOfUser = await constructSection('/api/accounts/profile', utility.getUser);
+        isAuthenticated = true;
+    } catch (e) {
+        NameOfUser = 'Guest';
+    }
+
+    let topBarHtml = constructTopBar('Accounts', '/');
+    let sidebarHtml = constructSidebar(isAuthenticated, NameOfUser);
     contentWrapper = `
         <div class="contentWrapper">
             ${topBarHtml}
@@ -98,4 +106,4 @@ function constructAccountsPage(isAuthenticated) {
     utility.loadAccountModalJs();
 }
 
-constructAccountsPage(true)
+constructAccountsPage()

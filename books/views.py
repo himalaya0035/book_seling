@@ -90,6 +90,7 @@ class BestSellerView(ListAPIView):
     #     return super(BestSellerView, self).list(request, *args, **kwargs)
     #
 
+
 class TopAuthors(ListAPIView):
     queryset = Author.objects.annotate(booksWritten=Count('book')).order_by('-booksWritten')[:9]
 

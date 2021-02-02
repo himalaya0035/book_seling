@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounts</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/orderProcessing.css">
+    <style>
+       .accountOptions {
+           display: flex;
+           flex-direction: column;
+           justify-content: space-between;
+           align-items: center;
+           padding: 10px;
+           padding-top: 20px;
+       }
+       .accountOptions > div {
+           width: 100%;
+           /* border: 1px solid red; */
+       }
+       .accountOptions div a {
+           padding: 10px;
+           margin-bottom: 15px;
+           width: 100%;
+           display: block;
+           text-align: center;
+           border: 1px solid white;
+           box-shadow: 0px 0px 3px rgb(63, 63, 63);
+           text-decoration: none;
+       }
+       .accountOptions div button:focus {
+           outline: none;
+       }
+       .deleteAccount {
+           background-color:  #F32013;
+           color: white;
+       }
+       .updateEmail {
+           background-color: #673AB7;
+           color: white;
+       }
+       .changePassword{
+           background-color: teal;
+           color: white;
+       }
+       .accountNote {
+           padding: 10px;
+           background-color: teal;
+           color: white;
+           margin: 10px;
+           border-radius: 10px;
+           border: 1px solid white;
+           box-shadow: 0px 0px 3px rgb(63, 63, 63);
+       }
+       .accountNote h5 {
+           font-size: 20px;
+           margin-bottom: 5px;
+       }
+       .accountNote ul {
+           margin-top: 10px;
+           margin-left: 30px;
+       }
+       .accountNote p,.accountNote ul li {
+           font-family: 'Poppins';
+       }
+       .warning {
+           background-color:#F32013;
+       }
+    </style>
+    <style>
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            padding-top: 200px; /* Location of the box */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+
+/* Modal Content */
+.modal-content {
+  position: relative;
+  background-color: #fefefe;
+  margin: auto;
+  padding: 0;
+
+  width: 80%;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+  -webkit-animation-name: animatetop;
+  -webkit-animation-duration: 0.8s;
+  animation-name: animatetop;
+  animation-duration: 0.4s
+}
+
+/* Add Animation */
+@-webkit-keyframes animatetop {
+  from {top:-300px; opacity:0} 
+  to {top:0; opacity:1}
+}
+
+@keyframes animatetop {
+  from {top:-300px; opacity:0}
+  to {top:0; opacity:1}
+}
+
+/* The Close Button */
+.close {
+  color: white;
+  float: right;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.modal-header {
+  padding: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #673AB7;
+  color: white;
+}
+
+.modal-body {padding:10px 10px 20px 10px;}
+.modal-body input {
+    margin-top: 5px;
+    padding: 6px 10px 6px 10px ;
+    width: 100%;
+    border: 1px solid #280269;
+    font-weight: bold;
+    color: rgb(41, 40, 40);
+}
+.modal-body label {
+    font-size: 15px;
+    color: #222222;
+    font-weight: bold;
+}
+.modal-body input:focus {
+    outline: none;
+    border: 1px solid #673AB7;
+}
+::placeholder {
+    color: #444444;
+    font-weight: bold;
+}
+.modal-footer {
+  padding: 6px;
+  background-color: #673AB7;
+  color: white;
+  display: flex;
+  justify-content: flex-end;
+}
+.modal-footer button {
+    padding: 5px;
+    color: black;
+    font-weight: bold;
+}
+    </style>
+</head>
+<body>
+    <div id="loader" style="position:absolute; top:50%; left: 50%; transform: translate(-50%,-50%);">
+        <img src="/static/images/load-gif.gif" alt="" width="150">
+    </div>
+    <div id="rootElement">
+
+    </div>
+
+
+    <script type="module" src="/static/js/api handling/constructAccountsPage.js"></script>
+
+</body>
+</html>

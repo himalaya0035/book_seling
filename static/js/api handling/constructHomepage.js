@@ -33,7 +33,7 @@ function constructBooksSlider(data, sectionName) {
           <div class ="booksSection">
               <div class="headerRow">
                   <h4>${sectionName}</h4>
-                  <a href="sections.html" aria-label="view ${sectionName} section">More</a>
+<!--                  <a href="sections.html" aria-label="view ${sectionName} section">More</a>-->
               </div>
              <div class="booksHolder">${sliderBooks}</div>
           </div>
@@ -44,7 +44,6 @@ function constructBooksSlider(data, sectionName) {
 function constructAuthorsSlider(data) {
     let sliderAuthors = "";
     for (let i = 0; i < data.length; i++) { // ye 9 bs sample ke liye liya hai maine, array length ayega yha
-        console.log(data[i].id)
         sliderAuthors += `
       <div class="authorBox">
         <div class="authorImgHolder">

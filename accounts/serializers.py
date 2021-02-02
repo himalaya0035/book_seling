@@ -107,3 +107,22 @@ class ProfileSerializer(serializers.ModelSerializer):
             request = self.context.get('request')
             login(request, user_obj)
             return user_obj.profile
+
+
+class EmailUpdateSerializer(serializers.Serializer):
+    password = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
+
+    # def validate(self, attrs):
+    #     validated_data = super(EmailUpdateSerializer, self).validate(attrs)
+    #     new_email = validated_data.get('email')
+    #
+    #
+    #
+    #     print(attrs)
+    def validate_password(self, password):
+        user = self.context['user']
+        user = authenticate(username=user.username, password=password)
+        if user is None:
+            raise ValidationError('invalid password')
+        return password

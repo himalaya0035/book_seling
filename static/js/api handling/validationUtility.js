@@ -12,7 +12,7 @@ export function isEmailOK(email) {
 }
 
 function isFieldsEmpty(array) {
-    return (array.some(arrayElement => arrayElement.value == ''))
+    return (array.some(arrayElement => arrayElement.value === ''))
 }
 
 function isAddressOk(address) {
@@ -55,14 +55,26 @@ export function removeErrorMsg() {
     document.getElementById('message').innerText = '';
 }
 
+function generate_shipment_details() {
+    const shipping_address_data = {
+        name: document.getElementsByClassName('sectionFirst')[0].value,
+        address: document.getElementById('address').value,
+        contact_number: document.getElementById('contact').value,
+        email: document.getElementById('emailId').value
+    }
+    localStorage.setItem("shipping_address", JSON.stringify(shipping_address_data));
+    window.location = '/confirm-order';
+}
+
 
 export function validationUtility() {
+
     var contact = document.getElementById('contact');
     var address = document.getElementById('address');
-    var email = document.getElementById('email')
+    var email = document.getElementById('emailId')
     var firstSection = document.getElementsByClassName('sectionFirst');
     var saveBtn = document.getElementById('saveBtn');
-    var condition
+    var condition;
     var arr = Array.from(firstSection);
 
     function validateFirstSection(btn) {
@@ -78,6 +90,48 @@ export function validationUtility() {
         } else {
             disableBtn(btn);
         }
+    }
+
+    if (window.location.href.indexOf('checkout') > -1) {
+        var paymentBtn = document.getElementById('paymentBtn');
+        var nextLink = document.getElementById('nextLink');
+        if (!(!isFieldsEmpty(arr) && isContactOk(contact) && isEmailOK(email) && isAddressOk(address))) {
+
+            paymentBtn.style.color = "#808080";
+            nextLink.style.color = '#808080'
+        } else {
+
+            nextLink.addEventListener('click', generate_shipment_details);
+            paymentBtn.addEventListener('click', generate_shipment_details);
+
+        }
+
+        arr.map(a => {
+            a.addEventListener('input', () => {
+                if (!isFieldsEmpty(arr) && isContactOk(contact) && isEmailOK(email) && isAddressOk(address)) {
+
+                    // paymentBtn.href = "confirmOrder.html";
+                    paymentBtn.style.color = "white";
+                    // nextLink.href = "confirmOrder.html";
+                    nextLink.href = "#";
+                    nextLink.style.color = 'white';
+                    nextLink.addEventListener('click', generate_shipment_details);
+                    paymentBtn.addEventListener('click', generate_shipment_details);
+
+                } else {
+
+                    nextLink.removeEventListener('click', generate_shipment_details);
+                    paymentBtn.removeEventListener('click', generate_shipment_details);
+
+
+                    // paymentBtn.href = "#";
+                    paymentBtn.style.color = "#808080";
+                    // nextLink.href = "#";
+                    nextLink.style.color = '#808080'
+                }
+            })
+        })
+
     }
 
     if (window.location.href.indexOf("profile") > -1) {
@@ -97,7 +151,8 @@ export function validationUtility() {
                     first_name: firstSection[0].value,
                     last_name: firstSection[1].value
                 }
-            }
+            };
+
             const res = await fetch(url, {
                 method: 'PUT',
                 headers: {
@@ -106,7 +161,7 @@ export function validationUtility() {
                     "X-CSRFToken": csrftoken
                 },
                 body: JSON.stringify(obj)
-            })
+            });
 
             disableBtn(saveBtn);
             let isPostRequestOk = false;

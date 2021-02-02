@@ -30,7 +30,6 @@ export function loadUtilityJs() {
     let sidebarToggler = document.getElementsByClassName("sidebarToggler")[0];
     let sidebar = document.getElementsByClassName("mobileSidebar")[0];
     let cross = document.getElementsByClassName("cross")[0];
-
     sidebarToggler.addEventListener('click', function () {
         sidebar.classList.toggle('sidebarActive');
     })
@@ -201,12 +200,15 @@ export function loadAccountModalJs() {
             } else {
 
                 removeErrorMsg();
-                let url = 'https://jsonplaceholder.typicode.com/posts';
-                let obj = {
-                    title: 'foo',
-                    body: 'bar',
-                    userId: 1,
-                }
+
+
+                let url = '/api/accounts/update-email';
+                let obj =
+                    {
+                        password: confirmPasswordDelete2.value,
+                        email: emailInput.value
+                    }
+
                 disableDeleteBtn(updateEmailBtn)
                 const isPostRequestOk = await postJsonData(url, obj);
                 if (isPostRequestOk) {
@@ -229,18 +231,16 @@ export function loadAccountModalJs() {
             } else {
 
                 document.getElementById('message2').innerText = '';
-                let url = 'https://jsonplaceholder.typicode.com/posts';
+                let url = '/api/accounts/delete';
                 let obj = {
-                    title: 'foo',
-                    body: confirmPasswordDelete.value,
-                    userId: 1,
+                    password: confirmPasswordDelete.value
                 }
                 disableDeleteBtn(deleteAccountBtn)
                 const isPostRequestOk = await postJsonData(url, obj);
                 if (isPostRequestOk) {
                     document.getElementById('message').style.color = '#673AB7';
                     setTimeout(() => {
-                        window.location.replace('http://127.0.0.1:5501/index.html') // jha bhi redirect krna ho daal diyo,
+                        window.location.replace('/')
                     }, 1000);
                 } else {
                     document.getElementById('message2').innerText = 'Password is incorrect, try again';
@@ -308,23 +308,7 @@ export function loadOrderTotalJs() {
             enableBtn(applyButton)
         }
     }
-    placeorderbtn.onclick = async () => {
-        let url = 'https://jsonplaceholder.typicode.com/posts';
-        let obj = {
-            title: 'foo',
-            body: 'bar',
-            userId: 1,
-            // object here would be - code : promocode.value
-        }
-        const isPostRequestOk = postJsonData(url, obj);
-        disableBtn(placeorderbtn);
-        if (isPostRequestOk) {
-            window.location.replace('http://127.0.0.1:5501/index.html');
-        } else {
-            alert(`couldn't place order`);
-        }
 
-    }
     // abhi smj me nhi aa rha ki kya kru place order ke baad, payment gateway khulna chaiye yha pr
     // wo dekhenge kaise kre
 }
@@ -416,6 +400,12 @@ export function getUser(data) {
 }
 
 
+export function getCheckoutData(data) {
+
+    return data
+
+}
+
 export function addDealToCart() {
     const btn = document.getElementsByClassName('addToCartBtn2');
 
@@ -464,48 +454,28 @@ export function addDealToCart() {
 
 }
 
-/*
-export function addDealToCart() {
-    const btn = document.getElementsByClassName('addToCartBtn2');
-
-    for (let i = 0; i < btn.length; i++) {
-
-        btn[i].onclick = async (e) => {
-            let iconClass;
-            let btnText;
-            const deal_id = e.target.id;
-            let url;
-            const obj = {
-                deal_id: deal_id
-            }
-            if (btn[i].classList.contains('addToCartBtn2') && btn[i].classList.contains('removeFromCartBtn2')) { // jb remove krna ho
-                 url = 'https://jsonplaceholder.typicode.com/posts' // yha url dekh lena
-                 iconClass = 'fa-cart-plus';
-                 btnText = 'Add to cart';
-                 btn[i].classList.toggle('removeFromCartBtn2');
-                 console.log('removed from cart')
-            }
-            else if (btn[i].classList.contains('addToCartBtn2')){ // jb add krna ho
-                url = '/api/cart/all';
-                iconClass = 'fa-check';
-                btnText = 'Added';
-                btn[i].classList.toggle('removeFromCartBtn2');
-                console.log('added to cart')
-            }
-
-            disableBtn(e.target);
-            const res = await postJsonData(url, obj);
-                if (res) {
-                    btn[i].innerHTML = `<i class ="fa ${iconClass}" style="color:white;"></i>` + `  ${btnText}`;
-                } else {
-                    alert('Operation Failed')
+export function animateOrderButton() {
+    var orderBtn = document.getElementsByClassName('order')[0];
+    orderBtn.onclick = async (e) => {
+        console.log(orderBtn)
+        if (!orderBtn.classList.contains('animate')) {
+            let url = '/api/cart/checkout';
+            let obj = {
+                shipping_details: {
+                    ...JSON.parse(localStorage.getItem('shipping_address'))
                 }
-            enableBtn(e.target);
-
+                // object here would be - code : promocode.value
+            }
+            const isPostRequestOk = await postJsonData(url, obj);
+            if (isPostRequestOk) {
+                orderBtn.classList.add('animate');
+                setTimeout(() => {
+                    // window.location.replace('https://himalaya0035.github.io/Bookstore/orderComplete.html');
+                }, 10000)
+            } else {
+                alert('Could not place order, try again in some time');
+                return false;
+            }
         }
-
     }
-
-
 }
- */

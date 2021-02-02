@@ -1,13 +1,15 @@
 from django.contrib import auth
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseRedirect
 from rest_framework import status
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, UpdateAPIView
 from rest_framework.generics import DestroyAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.models import Profile
-from accounts.serializers import UserLoginSerializer, UserSerializer, ProfileSerializer
+from accounts.serializers import UserLoginSerializer, UserSerializer, ProfileSerializer, EmailUpdateSerializer
 
 
 class Login(APIView):
@@ -43,7 +45,6 @@ class Register(CreateAPIView):
     def post(self, request, *args, **kwargs):
         print(self.request.data)
         ret = super(Register, self).post(request, *args, **kwargs)
-        print(ret)
         return ret
 
     def get_serializer_context(self):
@@ -73,17 +74,40 @@ class RetrieveProfileView(RetrieveUpdateAPIView):
         return Response(data.data)
 
 
-class Logout(APIView):
+@login_required
+def logout(request):
+    auth.logout(request)
+    return HttpResponseRedirect('/')
+
+
+class DeleteProfile(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, *args, **kwargs):
-        auth.logout(request)
-        return Response(status=status.HTTP_200_OK)
+    def post(self, request, *args, **kwargs):
+        password = request.data.get('password')
+        if password is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        user = auth.authenticate(username=request.user.username, password=password)
+        if user is None:
+            return Response(data={
+                'message': 'wrong password'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            user.delete()
+            return Response(status=status.HTTP_200_OK)
 
 
-class DeleteProfile(DestroyAPIView):
+class UpdateEmail(UpdateAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = UserSerializer
 
-    def get_object(self):
-        return self.request.user
+    def post(self, request, *args, **kwargs):
+        current_user = request.user
+        serialized_data = EmailUpdateSerializer(data=request.data, context={
+            'user': current_user
+        })
+
+        if serialized_data.is_valid(raise_exception=True):
+            current_user.email = serialized_data.data.get('email')
+            current_user.save()
+            return Response(status=status.HTTP_200_OK)

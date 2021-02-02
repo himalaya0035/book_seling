@@ -38,7 +38,7 @@ export function constructSidebar(isAuthenticated, NameOfUser) {
                     <a href="accounts.html" aria-label="manage accounts"><i class="fa fa-user"></i> Accounts</a>
                 </li>
                 <li>
-                    <a href="" aria-label="sign out"><i class="fa fa-sign-out"></i> Logout</a>
+                    <a href="/api/accounts/logout" aria-label="sign out"><i class="fa fa-sign-out"></i> Logout</a>
                 </li>
             </ul>
             <hr />

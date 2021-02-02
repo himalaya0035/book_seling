@@ -10,5 +10,5 @@ urlpatterns = [
     path('checkout', views.Checkout.as_view()),
     # path('deals/<slug:book_id>', views.GetDealOfBook.as_view()),
     path('deals/<slug:pk>', views.GetDealOfBook.as_view()),
-
+    path('your-orders', views.OrderListView.as_view())
 ]

@@ -46,5 +46,10 @@ loginBtn.onclick = async () => {
     };
 
     const res = await postJsonData(url, data);
-    if (res === true) window.location = "/";
+    if (res === true) {
+        window.location = "/";
+    }
+    else {
+        document.getElementById('message').innerText = 'Invalid Credentials'
+    }
 }
