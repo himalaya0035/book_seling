@@ -7,9 +7,12 @@ var loader = document.getElementById("loader");
 var contentWrapper;
 var shippingMail;
 
-function constructShippingAddress(data) {
-    let obj = JSON.parse(localStorage.getItem('shipping_address'))
+let obj = JSON.parse(localStorage.getItem('shipping_address'))
+let obj2 = JSON.parse(localStorage.getItem('order-details'))
+shippingMail = obj.email
 
+
+function constructShippingAddress(data) {
     return (
         `
         <div class="shippingAddress">
@@ -29,11 +32,11 @@ function constructOrderTotal(data) {
         <div class="cartDescription">
         <div class="descriptionItems">
             <p>Quantity</p>
-            <p>x4</p> <!-- // yeh nikalna hai -->
+            <p>${obj2.quantity}</p> <!-- // yeh nikalna hai -->
         </div>
         <div class="descriptionItems">
             <p>Cart Total</p>
-            <p id="cartTotal">Rs 2999</p> <!-- yeh bhi nikalana hai -->
+            <p id="cartTotal">${obj2.cart_total}</p> <!-- yeh bhi nikalana hai -->
          </div>
         <div class="descriptionItems">
             <p>CGST/SCGT (0%)</p>
@@ -41,7 +44,7 @@ function constructOrderTotal(data) {
         </div>
         <div class="descriptionItems">
             <p>Discount</p>
-            <p id="discount">Rs 0</p> <!-- yeh js se niklega -->
+            <p id="discount">${obj2.discount}</p> <!-- yeh js se niklega -->
         </div>
         <div class="descriptionItems">
             <p>Delivery Charge</p>
@@ -49,7 +52,7 @@ function constructOrderTotal(data) {
         </div>
         <div class="descriptionItems total"> 
             <p>Total</p>
-            <p id="totalAmt"></p> <!--yeh js se niklega -->
+            <p id="totalAmt">${obj2.total_amount}</p> <!--yeh js se niklega -->
         </div>
     </div>
         `

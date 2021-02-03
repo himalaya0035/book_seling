@@ -26,7 +26,7 @@ async function constructAccountsPage() {
         <div class="contentWrapper">
             ${topBarHtml}
             <div class="accountOptions">
-            <div><a  href="passwordReset.html" class="changePassword">Change Password</a></div>
+            <div><a  href="/accounts/reset_password" class="changePassword">Change Password</a></div>
             <div><a  href="#"  class="updateEmail myBtn" >Update email</a></div>
             <div><a  href="#" class="deleteAccount myBtn">Delete Account</a></div>
         </div>

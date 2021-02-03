@@ -60,8 +60,9 @@ function generate_shipment_details() {
         name: document.getElementsByClassName('sectionFirst')[0].value,
         address: document.getElementById('address').value,
         contact_number: document.getElementById('contact').value,
-        email: document.getElementById('emailId').value
+        email: document.getElementById('emailId').value,
     }
+
     localStorage.setItem("shipping_address", JSON.stringify(shipping_address_data));
     window.location = '/confirm-order';
 }

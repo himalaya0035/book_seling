@@ -8,101 +8,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="/static/css/main.css">
     <link rel="stylesheet" href="/static/css/orderProcessing.css">
+    <link rel="stylesheet" href="/static/css/modal.css">
 
 </head>
-<style>
-    .modal {
-        display: none;
-        position: fixed; /* Stay in place */
-        z-index: 1; /* Sit on top */
-        padding-top: 100px; /* Location of the box */
-        left: 0;
-        top: 0;
-        width: 100%; /* Full width */
-        height: 100%; /* Full height */
-        overflow: auto; /* Enable scroll if needed */
-        background-color: rgb(0,0,0); /* Fallback color */
-        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-        scrollbar-width: 1px;
-    }
 
-/* Modal Content */
-.modal-content {
-position: relative;
-background-color: #fefefe;
-margin: auto;
-padding: 0;
-max-height: 400px;
-height: auto;
-overflow-y: auto;
-width: 90%;
-box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
--webkit-animation-name: animatetop;
--webkit-animation-duration: 0.8s;
-animation-name: animatetop;
-animation-duration: 0.4s
-}
-
-/* Add Animation */
-@-webkit-keyframes animatetop {
-from {top:-300px; opacity:0}
-to {top:0; opacity:1}
-}
-
-@keyframes animatetop {
-from {top:-300px; opacity:0}
-to {top:0; opacity:1}
-}
-
-/* The Close Button */
-.close {
-color: white;
-float: right;
-font-size: 24px;
-font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-color: #000;
-text-decoration: none;
-cursor: pointer;
-}
-
-.modal-header {
-padding: 6px;
-display: flex;
-justify-content: space-between;
-align-items: center;
-background-color: #673AB7;
-color: white;
-position: sticky;
-top:0px;
-}
-
-.modal-body {padding:8px;}
-
-.modal-footer {
-padding: 6px;
-background-color: #673AB7;
-color: white;
-display: flex;
-justify-content: flex-end;
-}
-.modal-footer button {
-padding: 5px;
-color: black;
-font-weight: bold;
-}
-</style>
 <body>
-    <div id="loader" style="position:absolute; top:50%; left: 50%; transform: translate(-50%,-50%);">
-        <img src="/static/images/load-gif.gif" alt="" width="150">
-    </div>
-    <div id="rootElement">
+<div id="loader" style="position:absolute; top:50%; left: 50%; transform: translate(-50%,-50%);">
+    <img src="/static/images/load-gif.gif" alt="" width="150">
+</div>
+<div id="rootElement">
 
-    </div>
-    <script type="module" src="/static/js/api handling/constructBookPage.js"></script>
+</div>
+<script type="module" src="/static/js/api handling/constructBookPage.js"></script>
 </body>
 
 </html>

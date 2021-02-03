@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Orders</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/orderProcessing.css">
+    <link rel="stylesheet" href="/static/css/modal.css">
+    <style>
+        .bookItem {
+            border-bottom: 1px solid #808080;
+        }
+        .priceRating p:last-of-type {
+           color: #504F4F;
+        }
+        .deliveryMessage {
+            color: #673AB7;
+            text-shadow:0px 0px 8px #673AB7;
+        }
+        .orderDetail {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .orderDetail p {
+            font-family: 'Poppins';
+        }
+    </style>
+</head>
+<body>
+    <div id="loader" style="position:absolute; top:50%; left: 50%; transform: translate(-50%,-50%);">
+        <img src="/static/images/load-gif.gif" alt="" width="150">
+    </div>
+    <div id="myModal" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <div class="modal-header" >
+            <h5 style="letter-spacing:1px;">Order Details</h5>
+            <span class="close">&times;</span>
+            </div>
+            <div class="modal-body" id="bodyOfModal">
+
+            </div>
+        </div>
+    </div>
+    <div id="rootElement">
+
+    </div>
+    <script type="module" src="/static/js/api handling/constructOrdersPage.js"></script>
+</body>
+</html>

@@ -13,16 +13,18 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+import debug_toolbar
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path, include
-from django.views.generic import TemplateView
-import debug_toolbar
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+
+from django.urls import path, include
+from django.views.generic import TemplateView
+
 from .decorators import AnonymousRequired, CheckoutValidation
-from django.views.decorators.cache import cache_page, cache_control
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -31,11 +33,20 @@ urlpatterns = [
     path('api/cart/', include('orders.urls')),
     path('__debug__/', include(debug_toolbar.urls)),
 
-    path('accounts/reset_password/', auth_views.PasswordResetView.as_view(), name="reset_password"),
-    path('accounts/reset_password_sent/', auth_views.PasswordResetDoneView.as_view(), name="password_reset_done"),
-    path('accounts/reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(),
+    path('accounts/reset_password/',
+         (auth_views.PasswordResetView.as_view(template_name='passwordReset.html')),
+         name="reset_password"),
+
+    path('accounts/reset_password_sent',
+         (auth_views.PasswordResetDoneView.as_view(template_name='passwordResetSent.html')),
+         name="password_reset_done"),
+
+    path('accounts/reset/<uidb64>/<token>',
+         (auth_views.PasswordResetConfirmView.as_view(template_name='setNewPassword.html')),
          name="password_reset_confirm"),
-    path('accounts/reset_password_complete/', auth_views.PasswordResetCompleteView.as_view(),
+
+    path('accounts/reset_password_complete',
+         (auth_views.PasswordResetCompleteView.as_view(template_name='passwordResetComplete.html')),
          name="password_reset_complete"),
 
 ]
@@ -53,8 +64,13 @@ urlpatterns += [
     path('checkout', login_required(TemplateView.as_view(template_name='checkout.html'))),
     path('accounts/update', login_required(TemplateView.as_view(template_name='accounts.html'))),
     path('confirm-order', login_required(CheckoutValidation(TemplateView.as_view(template_name='confirmOrder.html')))),
-    path('order-complete', login_required(TemplateView.as_view(template_name='orderComplete.html')))
+    path('order-complete', login_required(TemplateView.as_view(template_name='orderComplete.html'))),
+    path('your-orders', login_required(TemplateView.as_view(template_name='orders.html'))),
 ]
 
 urlpatterns = urlpatterns + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-urlpatterns = urlpatterns + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+# urlpatterns = urlpatterns + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+urlpatterns += staticfiles_urlpatterns()
+
+"""
+"""

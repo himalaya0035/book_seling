@@ -171,10 +171,20 @@ export function loadAccountModalJs() {
     let span = document.getElementsByClassName("close");
 
 
-    for (let i = 0; i < btn.length; i++) {
-        btn[i].onclick = function () {
-            modal[i].style.display = "block";
+    if (window.location.href.indexOf('order') > -1) {
+        for (let i = 0; i < btn.length; i++) {
+            btn[i].onclick = function () {
+                modal[0].style.display = "block";
+            }
         }
+    } else {
+        for (let i = 0; i < btn.length; i++) {
+            btn[i].onclick = function () {
+                modal[i].style.display = "block";
+            }
+        }
+    }
+    for (let i = 0; i < span.length; i++) {
         span[i].onclick = function () {
             modal[i].style.display = "none";
         }
@@ -460,6 +470,17 @@ export function animateOrderButton() {
         console.log(orderBtn)
         if (!orderBtn.classList.contains('animate')) {
             let url = '/api/cart/checkout';
+            const data = JSON.parse(localStorage.getItem('shipping_address'));
+
+
+            const order_details = {
+                cart_total: document.getElementById('cartTotal').innerText,
+                discount: document.getElementById('discount').innerText,
+                total_amount: document.getElementById('totalAmt').innerText,
+                quantity: document.getElementById('total-qty').innerText
+            };
+            localStorage.setItem('order-details', JSON.stringify(order_details));
+
             let obj = {
                 shipping_details: {
                     ...JSON.parse(localStorage.getItem('shipping_address'))
@@ -470,7 +491,7 @@ export function animateOrderButton() {
             if (isPostRequestOk) {
                 orderBtn.classList.add('animate');
                 setTimeout(() => {
-                    // window.location.replace('https://himalaya0035.github.io/Bookstore/orderComplete.html');
+                    window.location.replace('/order-complete');
                 }, 10000)
             } else {
                 alert('Could not place order, try again in some time');

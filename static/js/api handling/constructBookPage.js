@@ -16,8 +16,6 @@ function constructItemAndDescSection(data) {
     const genre1 = data.genre_names[0];
     const genre2 = data.genre_names[1];
 
-    console.log(typeof genre1, genre1)
-
     return `
         <div class="bookItem">
         <div class="coverImgHolder">

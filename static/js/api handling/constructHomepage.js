@@ -2,11 +2,6 @@ import {constructSection} from "./constructSection.js";
 import {constructHomepageTopBar, constructSidebar, constructTopBar} from "./component.js";
 import * as utility from "./utilities.js";
 
-const url1 = `/api/books/best-sellers`;
-const url2 = `/api/books/recommended`;
-const url3 = `/api/authors/top`;
-const url4 = `/api/books/new`;
-const url5 = `/api/books/popular`;
 
 const rootElement = document.getElementById("rootElement");
 let loader = document.getElementById("loader");
@@ -73,6 +68,13 @@ function constructAuthorsSlider(data) {
 let NameOfUser;
 let isAuthenticated = false;
 
+const url1 = `/api/books/best-sellers`;
+const url2 = `/api/books/recommended`;
+const url3 = `/api/authors/top`;
+const url4 = `/api/books/new`;
+const url5 = `/api/books/popular`;
+
+
 async function constructHomepage(urlOne, urlTwo, urlThree, urlFour, urlFive) {
 
 
@@ -84,7 +86,7 @@ async function constructHomepage(urlOne, urlTwo, urlThree, urlFour, urlFive) {
         NameOfUser = 'Guest';
     }
     let recommendedHtml;
-    if (isAuthenticated)  recommendedHtml= await constructSection(urlTwo, constructBooksSlider, 'Recommended For You');
+    if (isAuthenticated) recommendedHtml = await constructSection(urlTwo, constructBooksSlider, 'Recommended For You');
 
     let bestSellersHtml = await constructSection(urlOne, constructBooksSlider, 'Best Sellers');
     let newReleasesHtml = await constructSection(urlFour, constructBooksSlider, 'New Releases');

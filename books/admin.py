@@ -23,11 +23,11 @@ class BookAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'rating', 'sold_quantity']
     search_fields = ['name']
     sortable_by = ['price', 'rating', 'released_date', 'sold_quantity']
-    list_filter = ['sold_quantity', 'released_date', 'rating']
+    list_filter = ['sold_quantity', 'released_date', 'rating', 'genre']
 
-    def save_model(self, request, obj, form, change):
-        obj.created_by = request.user
-        super(BookAdmin, self).save_model(request, obj, form, change)
+    # def save_model(self, request, obj, form, change):
+    #     obj.created_by = request.user
+    #     super(BookAdmin, self).save_model(request, obj, form, change)
 
 
 class DealAdmin(admin.ModelAdmin):
@@ -42,3 +42,11 @@ class DealAdmin(admin.ModelAdmin):
 admin.site.register(Genre, GenreAdmin)
 admin.site.register(Book, BookAdmin)
 admin.site.register(Deal, DealAdmin)
+"""
+
+        cart_total: document.getElementById('cartTotal').innerText,
+        discount: document.getElementById('discount').innerText,
+        total_amount: document.getElementById('totalAmt').innerText,
+        quantity: document.getElementById('total-qty').innerText
+
+"""

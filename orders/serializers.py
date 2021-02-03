@@ -3,7 +3,7 @@ from rest_framework import serializers
 from accounts.models import Profile
 from books.models import Book, Deal
 from books.serializers import BookIconSerializer
-from .models import Bookmark, ProductOrderOrCart
+from .models import Bookmark, ProductOrderOrCart, Order, ShippingAddress
 
 
 class BookListSerializer(serializers.ModelSerializer):
@@ -34,6 +34,14 @@ class BookListSerializer(serializers.ModelSerializer):
 class DealSerializer(serializers.ModelSerializer):
     seller = serializers.SerializerMethodField()
 
+    def __init__(self, *args, **kwargs):
+
+        remove_fields = kwargs.pop('remove_fields', None)
+        super(DealSerializer, self).__init__(*args, **kwargs)
+        if remove_fields:
+            for remove_field in remove_fields:
+                self.fields.pop(remove_field)
+
     class Meta:
         model = Deal
         fields = ['id', 'seller', 'price']
@@ -57,3 +65,36 @@ class CartProductSerializer(serializers.ModelSerializer):
 
     def get_deal_price(self, instance: ProductOrderOrCart, *args, **kwargs):
         return instance.deal.price
+
+
+class ShippingAddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShippingAddress
+        exclude = ['user']
+
+
+class OrderListSerializer(serializers.ModelSerializer):
+    book_details = serializers.SerializerMethodField()
+    order_details = serializers.SerializerMethodField()
+    seller_details = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ProductOrderOrCart
+        fields = ['quantity', 'book_details', 'order_details', 'seller_details']
+
+    def get_book_details(self, instance: ProductOrderOrCart, *args, **kwargs):
+        deal: Deal = instance.deal
+        price = deal.price
+        return {**BookIconSerializer(deal.product, remove_fields=['lowest_price', 'rating']).data, 'price': price}
+
+    def get_order_details(self, instance: ProductOrderOrCart, *args, **kwargs):
+        order: Order = instance.order
+        return {
+            'total_amount': order.total_amount,
+            'ordered_on': order.ordered_on,
+            'shipping_address': ShippingAddressSerializer(order.shipping_address).data,
+            'status': order.status
+        }
+
+    def get_seller_details(self, instance: ProductOrderOrCart, *args, **kwargs):
+        return DealSerializer(instance.deal, remove_fields=['id']).data

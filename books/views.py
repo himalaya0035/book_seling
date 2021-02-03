@@ -129,20 +129,21 @@ class GetBooksByAuthors(ListAPIView):
 
 class GetNewReleases(ListAPIView):
     serializer_class = BookIconSerializer
-    queryset = Book.objects.order_by('-date_created')[:9]
+    queryset = Book.objects.order_by('-released_date')[:9]
 
-    @method_decorator(cache_page(60 * 15))
-    def list(self, request, *args, **kwargs):
-        return super(GetNewReleases, self).list(request, *args, **kwargs)
+    # @method_decorator(cache_page(60 * 15))
+    # def list(self, request, *args, **kwargs):
+    #     return super(GetNewReleases, self).list(request, *args, **kwargs)
+    #
 
 
 class GetPopularBooks(ListAPIView):
     serializer_class = BookIconSerializer
     queryset = Book.objects.all().order_by('-sold_quantity')[:9]
 
-    @method_decorator(cache_page(60 * 15))
-    def list(self, request, *args, **kwargs):
-        return super(GetPopularBooks, self).list(request, *args, **kwargs)
+    # @method_decorator(cache_page(60 * 15))
+    # def list(self, request, *args, **kwargs):
+    #     return super(GetPopularBooks, self).list(request, *args, **kwargs)
 
 
 class SimilarBookView(ListAPIView):

@@ -17,11 +17,9 @@ def remove_out_of_stock_products():
 
 @app.task
 def update_deal_and_book_data(order_obj_id):
-    obj = Order.objects.get(id=order_obj_id)
+    obj: Order = Order.objects.get(id=order_obj_id)
 
     for i in obj.productorderorcart_set.iterator():
-        i.deal.quantity = F('quantity') - 1
-        i.deal.save()
         i.deal.product.sold_quantity = F('sold_quantity') + i.quantity
         i.deal.product.save()
         i.save()

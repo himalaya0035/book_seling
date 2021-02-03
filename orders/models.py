@@ -57,17 +57,17 @@ class ShippingAddress(models.Model):
 
 class Order(models.Model):
     order_status_choices = (
-        ('pn', 'Pending'),
-        ('ds', 'Dispatched'),
-        ('ou', 'Out For Delivery'),
-        ('dl', 'Delivered')
+        ('Pending', 'Pending'),
+        ('Dispatched', 'Dispatched'),
+        ('Out For Delivery', 'Out For Delivery'),
+        ('Delivered', 'Delivered')
     )
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     ordered_on = models.DateTimeField(auto_now_add=True)
     promocode = models.ForeignKey('Promocode', null=True, blank=True, on_delete=models.SET_NULL)
     total_amount = models.PositiveIntegerField()
-    status = models.CharField(choices=order_status_choices, max_length=2, default='pn')
+    status = models.CharField(choices=order_status_choices, max_length=20, default='Pending')
     shipping_address = models.ForeignKey(ShippingAddress, null=True, on_delete=models.SET_NULL)
 
 

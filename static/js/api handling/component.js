@@ -20,7 +20,7 @@ export function constructSidebar(isAuthenticated, NameOfUser) {
                     <a href="/" aria-label="visit homepage"><i class="fa fa-home" ></i> Home</a>
                 </li>
                 <li>
-                    <a href="orders.html"  aria-label="check your orders"><i class="fa fa-file"></i> Your Orders</a>
+                    <a href="/your-orders"  aria-label="check your orders"><i class="fa fa-file"></i> Your Orders</a>
                 </li>
                 <li>
                     <a href="/cart" aria-label="visit cart "><i class="fa fa-shopping-cart" ></i> View Cart</a>
@@ -31,11 +31,11 @@ export function constructSidebar(isAuthenticated, NameOfUser) {
             </ul>
             <hr />
             <ul class="sidebarList">
-            <li>
-                    <a href="beAsellerForm.html" aria-label="be a seller"><img src="/static/images/seller.svg" width="20" style="margin-right:0px;"> Be a Seller</a>
-                </li>
+<!--            <li>-->
+<!--                    <a href="beAsellerForm.html" aria-label="be a seller"><img src="/static/images/seller.svg" width="20" style="margin-right:0px;"> Be a Seller</a>-->
+<!--                </li>-->
                 <li>
-                    <a href="accounts.html" aria-label="manage accounts"><i class="fa fa-user"></i> Accounts</a>
+                    <a href="/accounts/update" aria-label="manage accounts"><i class="fa fa-user"></i> Accounts</a>
                 </li>
                 <li>
                     <a href="/api/accounts/logout" aria-label="sign out"><i class="fa fa-sign-out"></i> Logout</a>

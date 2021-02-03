@@ -15,6 +15,11 @@ django-extensions = "*"
 werkzeug = "*"
 python-dotenv = "*"
 celery = "*"
+uvicorn = "*"
+daphne = "*"
+asgi-runserver = "*"
+uvloop = "*"
+httptools = "*"
 
 [dev-packages]
 

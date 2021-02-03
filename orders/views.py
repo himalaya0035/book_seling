@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.db import transaction
 from django.db.models import *
 from rest_framework import status
 from rest_framework.generics import ListCreateAPIView, get_object_or_404, ListAPIView, RetrieveUpdateDestroyAPIView
@@ -13,7 +14,7 @@ from books.models import Deal, Book
 from books.serializers import BookSerializer
 from .models import Order
 from .models import ProductOrderOrCart, Bookmark, Promocode, ShippingAddress
-from .serializers import CartProductSerializer, DealSerializer
+from .serializers import CartProductSerializer, DealSerializer, OrderListSerializer
 from .tasks import remove_out_of_stock_products, update_deal_and_book_data
 
 
@@ -77,8 +78,7 @@ class RemoveFromCart(APIView):
 
     def post(self, request, *args, **kwargs):
         pk = kwargs.get('deal_id')
-        ProductOrderOrCart.objects.filter(deal_id=pk, cart__user=request.user.profile, order__isnull=True,
-                                          cart__isnull=False).delete()
+        ProductOrderOrCart.objects.filter(deal_id=pk, cart__user=request.user.profile).delete()
         return Response(status=status.HTTP_200_OK)
 
 
@@ -145,6 +145,7 @@ request payload
 }
 
 """
+from django.db import DatabaseError
 
 
 class Checkout(APIView):
@@ -153,7 +154,6 @@ class Checkout(APIView):
 
         data = ProductOrderOrCart.objects.filter(
             cart__user=request.user.profile,
-            cart__isnull=False,
         ).aggregate(total_qty=Sum('quantity'), total_amount=Sum(F('quantity') * F('deal__price')))
 
         return Response(
@@ -175,38 +175,54 @@ class Checkout(APIView):
             )
 
         cart_products_qs: QuerySet[ProductOrderOrCart] = ProductOrderOrCart.objects.filter(
-            cart__user=user.profile, cart__isnull=False).annotate(
+            cart__user=user.profile).annotate(
             available_stock=Sum('deal__quantity'))
 
-        in_stock: QuerySet[ProductOrderOrCart] = cart_products_qs.filter(
-            available_stock__gte=F('quantity'))
+        #  available_stock__gte => available_stock >= ProductOrderOrCart.qty
 
-        if not in_stock.exists():
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        try:
+            with transaction.atomic():
+                in_stock: QuerySet[ProductOrderOrCart] = cart_products_qs.filter(
+                    available_stock__gte=F('quantity'))
+                in_stock.select_for_update()
 
-        total_cost = in_stock.aggregate(total_amount=Sum(F('quantity') * F('deal__price')))['total_amount']
-        total_cost = total_cost - (total_cost * discount_percent // 100)
+                if not in_stock.exists():
+                    return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        shipping_address_obj, created = ShippingAddress.objects.get_or_create(**shipping_details, user=request.user)
+                total_cost = in_stock.aggregate(total_amount=Sum(F('quantity') * F('deal__price')))['total_amount']
+                total_cost = total_cost - (total_cost * discount_percent // 100)
 
-        order_obj = Order.objects.create(user=request.user, total_amount=total_cost,
-                                         shipping_address=shipping_address_obj)
+                shipping_address_obj, created = ShippingAddress.objects.get_or_create(**shipping_details,
+                                                                                      user=request.user)
 
-        remove_out_of_stock_products.delay()
-        in_stock.update(cart=None, order=order_obj)
+                order_obj = Order.objects.create(user=request.user, total_amount=total_cost,
+                                                 shipping_address=shipping_address_obj)
 
-        update_deal_and_book_data.delay(order_obj.id)
+                for i in in_stock.iterator():
+                    i.deal.quantity = F('quantity') - i.quantity
+                    i.deal.save()
 
-        send_email_to_user.delay([user.email], "order placed",
-                                 f"Hi {user.first_name} just placed an order")
+                update_deal_and_book_data.delay(order_obj.id)
+                remove_out_of_stock_products.delay()
 
-        return Response(status=status.HTTP_201_CREATED)
+                in_stock.update(cart=None, order=order_obj)
+
+                send_email_to_user.delay([user.email], "order placed",
+                                         f"Hi {user.first_name} just placed an order")
+
+                return Response(status=status.HTTP_201_CREATED)
+
+        except DatabaseError as e:
+            print(e)
+            return Response(data={
+                'data': 'you missed it'
+            })
 
 
 """
 
 cover
-name
+name 
 seller name
 qty
 shipping address
@@ -217,12 +233,14 @@ status
 
 
 class OrderListView(ListAPIView):
-    serializer_class = CartProductSerializer
+    serializer_class = OrderListSerializer
 
     def get_queryset(self):
         user: User = self.request.user
-        order_obj: Order = Order.objects.filter(user=user).first()
-        return order_obj.productorderorcart_set.all()
+        return ProductOrderOrCart.objects.filter(order__user=user)
+
+        # order_obj: QuerySet[Order] = Order.objects.filter(user=user)
+        # return order_obj
 
 
 class PendingOrder(APIView):

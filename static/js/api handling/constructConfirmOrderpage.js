@@ -29,7 +29,7 @@ function constructOrderTotal(data) {
         <div class="cartDescription">
         <div class="descriptionItems">
             <p>Quantity</p>
-            <p>x${data.total_qty}</p> <!-- // yeh nikalna hai -->
+            <p id="total-qty">x${data.total_qty}</p> <!-- // yeh nikalna hai -->
         </div>
         <div class="descriptionItems">
             <p>Cart Total</p>
