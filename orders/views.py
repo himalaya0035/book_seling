@@ -187,7 +187,9 @@ class Checkout(APIView):
                 in_stock.select_for_update()
 
                 if not in_stock.exists():
-                    return Response(status=status.HTTP_400_BAD_REQUEST)
+                    return Response(data={
+                        'message': 'Product went out of stock'
+                    },status=status.HTTP_400_BAD_REQUEST)
 
                 total_cost = in_stock.aggregate(total_amount=Sum(F('quantity') * F('deal__price')))['total_amount']
                 total_cost = total_cost - (total_cost * discount_percent // 100)

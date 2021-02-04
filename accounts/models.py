@@ -9,10 +9,11 @@ def auto_prof_create(sender, instance: User, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
 
-        subject = "ThankYou Registering"
+        subject = "Welcome to Bookstore 🤩🤩"
 
-        print(instance.email)
-        body = f"Hey {instance.first_name} Welcome to BookStore. "
+        body = f"Hey {instance.first_name} Welcome to Bookstore 🤩🤩 \n" \
+               f"Bookstore is your best source to buy cheap book online, make " \
+               f"online book purchase, making us the best book website in India to read book online"
 
         send_email_to_user.delay([instance.email], subject, body)
 
@@ -61,12 +62,3 @@ class ProfileProxy(Profile):
 
 post_save.connect(auto_prof_create, sender=User)
 post_delete.connect(auto_user_delete, sender=Profile)
-
-
-"""
-
-{'user': {'username': 'priyansh2001', 'first_name': 'Priyansh', 'last_name': 'Singh', 'password': 'Fiitjee13', 'fav_genres': ['Business', 'Crime Thriller', 'History', 'Pyschology', 'Self Help']}, 'address': '113 North City Pilibhit Road Bareilly', 'contact_number': '7618166335'}
-
-{'user': {'username': 'priyansh2001', 'first_name': 'Priyansh', 'last_name': 'Singh', 'password': 'Fiitjee13', 'fav_genres': ['Cooking', 'Historical Fiction', 'Physics']}, 'address': '113 North City Pilibhit Road Bareilly', 'contact_number': '7618166335'}
-
-"""

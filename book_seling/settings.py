@@ -33,7 +33,6 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
 
-    'asgi_runserver',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -52,7 +51,7 @@ INSTALLED_APPS = [
     'orders'
 ]
 
-ASGI_APPLICATION = 'book_seling.asgi.application'
+# ASGI_APPLICATION = 'book_seling.asgi.application'
 
 LOGIN_URL = "/login"
 

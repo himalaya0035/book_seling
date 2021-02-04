@@ -152,7 +152,7 @@ export function constructHomepageTopBar(genreNames) {
                 <a href="/genre/Self Help/books" aria-label="view Self Help books" class="pill">Self Help</a>
                 <a href="/genre/Science Fiction/books" aria-label="view Science fiction books" class="pill">Science Fiction</a>
                 <a href="/genre/Young Adult/books" aria-label="view Young Adult books" class="pill">Young Adult</a>
-                <a href="genresList.html" class="more" aria-label="veiw more genres">More..</a>
+                <a href="/genre-list" class="more" aria-label="veiw more genres">More..</a>
 
             </div>
         </div>
