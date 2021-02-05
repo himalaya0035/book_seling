@@ -72,18 +72,19 @@ class GetRecommendedBooks(APIView):
             fav_genres = user.fav_genres.all()
 
             data = Book.objects.filter(genre__in=fav_genres).order_by('-sold_quantity').filter(
-                all_deals__isnull=False).order_by('-rating')[:9]
+                all_deals__isnull=False).order_by('-rating').distinct()[:9]
             data = BookIconSerializer(data, many=True).data
 
             cache.set(f'{user.id}', data, 60 * 5)
             # cache timeout=5 min
-
+        else:
+            print('in cache')
         return Response(data=data, status=status.HTTP_200_OK)
 
 
 class BestSellerView(ListAPIView):
     serializer_class = BookIconSerializer
-    queryset = Book.objects.order_by('-date_created').filter(all_deals__isnull=False).order_by('-rating')[:9]
+    queryset = Book.objects.order_by('-date_created').filter(all_deals__isnull=False).distinct().order_by('-rating')[:9]
 
     # @method_decorator(cache_page(60 * 60))
     # def list(self, request, *args, **kwargs):
@@ -129,7 +130,7 @@ class GetBooksByAuthors(ListAPIView):
 
 class GetNewReleases(ListAPIView):
     serializer_class = BookIconSerializer
-    queryset = Book.objects.order_by('-released_date')[:9]
+    queryset = Book.objects.filter(all_deals__isnull=False).distinct().order_by('-released_date')[:9]
 
     # @method_decorator(cache_page(60 * 15))
     # def list(self, request, *args, **kwargs):
@@ -139,7 +140,7 @@ class GetNewReleases(ListAPIView):
 
 class GetPopularBooks(ListAPIView):
     serializer_class = BookIconSerializer
-    queryset = Book.objects.all().order_by('-sold_quantity')[:9]
+    queryset = Book.objects.all().filter(all_deals__isnull=False).distinct().order_by('-sold_quantity')[:9]
 
     # @method_decorator(cache_page(60 * 15))
     # def list(self, request, *args, **kwargs):

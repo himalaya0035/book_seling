@@ -22,6 +22,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 from django.urls import path, include
+from django.views.decorators.cache import cache_page, cache_control
 from django.views.generic import TemplateView
 
 from .decorators import AnonymousRequired, CheckoutValidation
@@ -52,7 +53,7 @@ urlpatterns = [
 ]
 
 urlpatterns += [
-    path('login', AnonymousRequired(TemplateView.as_view(template_name='login.html'))),
+    path('login', (AnonymousRequired(TemplateView.as_view(template_name='login.html')))),
     path('signup', AnonymousRequired(TemplateView.as_view(template_name='signup.html'))),
     path('', TemplateView.as_view(template_name='index.html')),
     path('author/<int:pk>', TemplateView.as_view(template_name='author.html')),
@@ -66,11 +67,9 @@ urlpatterns += [
     path('confirm-order', login_required(CheckoutValidation(TemplateView.as_view(template_name='confirmOrder.html')))),
     path('order-complete', login_required(TemplateView.as_view(template_name='orderComplete.html'))),
     path('your-orders', login_required(TemplateView.as_view(template_name='orders.html'))),
+    path('genre-list', TemplateView.as_view(template_name='genresList.html'))
 ]
 
 urlpatterns = urlpatterns + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # urlpatterns = urlpatterns + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += staticfiles_urlpatterns()
-
-"""
-"""

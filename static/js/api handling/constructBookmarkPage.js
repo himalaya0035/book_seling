@@ -10,9 +10,7 @@ function constructBookmarkedList(data) {
     console.log(data)
     var bookmarkedBooks = '';
     for (let i = 0; i < data.length; i++) {
-        let obj = {
-            // sb deta yha nikallene, uske baad obj.variableName Niche Html me kr dena
-        }
+
         bookmarkedBooks +=
             `
             <div class="bookItem">
@@ -29,7 +27,7 @@ function constructBookmarkedList(data) {
                     </div>
                     <div class="options bookOptions">
                         <div class="qty addToCart">
-                            <button class="addToCartBtn"><i class="fa fa-cart-plus"
+                            <button class="addToCartBtn" id="${data[i].lowest_price.id}"><i class="fa fa-cart-plus"
                                     style="color: white; font-size: 1.1em;"></i>&nbsp;&nbsp;Add to cart</button>
                         </div>
                         <button id=${data[i].ISBN} class="deleteBookmark" style="background-color: #673AB7; color: white; padding: 8px;"><i
@@ -65,7 +63,7 @@ async function constructBookmarkPage(urlOne) {
     }
 
     let bookmarkedListHtml = await constructSection(urlOne, constructBookmarkedList);
-    let topBarHtml = constructTopBar('Bookmarked', 'index.html', 'cart.html');
+    let topBarHtml = constructTopBar('Bookmarked', '/', '/cart');
     let sidebarHtml = constructSidebar(isAuthenticated, NameOfUser);
 
     contentWrapper = `

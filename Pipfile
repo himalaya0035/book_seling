@@ -20,6 +20,7 @@ daphne = "*"
 asgi-runserver = "*"
 uvloop = "*"
 httptools = "*"
+uwsgi = "*"
 
 [dev-packages]
 
