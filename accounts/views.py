@@ -43,7 +43,7 @@ class Register(CreateAPIView):
     permission_classes = [~IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        print(self.request.data)
+        # print(self.request.data)
         ret = super(Register, self).post(request, *args, **kwargs)
         return ret
 

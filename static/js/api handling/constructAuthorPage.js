@@ -46,7 +46,7 @@ function constructAuthorBooksSection(data) {
         authorBooks += `
         <div class="homepageBook">
             <div class="coverImgHolder">
-               <a href="book.html"><img src=${data[i].cover_image} alt="" /></a>
+               <a href=/book/${data[i].ISBN}><img src=${data[i].cover_image} alt="" /></a>
             </div>
             <p class="bookName">${data[i].name}</p>
             <div class="ratingAndPrice">

@@ -42,7 +42,7 @@ function constructAuthorsSlider(data) {
         sliderAuthors += `
       <div class="authorBox">
         <div class="authorImgHolder">
-            <a href="/author/${data.id}" aria-label="view Author"><img loading="lazy" src=${data[i].image} height="135" width="90" alt="" /></a>
+            <a href="/author/${data[i].id}" aria-label="view Author"><img loading="lazy" src=${data[i].image} height="135" width="90" alt="" /></a>
         </div>
         <p class="homepageAuthorName">${data[i].name}</p>
         <a href="/author/${data[i].id}" aria-label="view Author" class="viewAuthor">View</a>
@@ -88,30 +88,34 @@ async function constructHomepage(urlOne, urlTwo, urlThree, urlFour, urlFive) {
     let recommendedHtml;
     if (isAuthenticated) recommendedHtml = await constructSection(urlTwo, constructBooksSlider, 'Recommended For You');
 
-    let bestSellersHtml = await constructSection(urlOne, constructBooksSlider, 'Best Sellers');
-    let newReleasesHtml = await constructSection(urlFour, constructBooksSlider, 'New Releases');
-    let popularHtml = await constructSection(urlFive, constructBooksSlider, 'Popular');
-    let topAuthorsHtml = await constructSection(urlThree, constructAuthorsSlider);
+    let bestSellersHtml = constructSection(urlOne, constructBooksSlider, 'Best Sellers');
+    let newReleasesHtml = constructSection(urlFour, constructBooksSlider, 'New Releases');
+    let popularHtml = constructSection(urlFive, constructBooksSlider, 'Popular');
+    let topAuthorsHtml = constructSection(urlThree, constructAuthorsSlider);
     let topBarHtml = constructHomepageTopBar();
     let mobilesidebarHtml = constructSidebar(isAuthenticated, NameOfUser);
-    contentWrapper = `<div class ="contentWrapper">
+    Promise.all([bestSellersHtml, newReleasesHtml, popularHtml, topAuthorsHtml])
+        .then((values) => {
+                contentWrapper = `<div class ="contentWrapper">
          ${topBarHtml}
-         ${bestSellersHtml}
+         ${values[0]}
          ${isAuthenticated ? recommendedHtml : ``}
-         ${topAuthorsHtml}
-         ${newReleasesHtml}
-         ${popularHtml}
+         ${values[3]}
+         ${values[1]}
+         ${values[2]}
         </div>
     `
-    const searchResults = `
+                const searchResults = `
     <div id="searchResults">
     
     </div>
     `
-    rootElement.innerHTML = searchResults + mobilesidebarHtml + contentWrapper;
-    utility.disableLoader(rootElement, loader)
-    utility.loadUtilityJs();
-    utility.manageSearchResults();
+                rootElement.innerHTML = searchResults + mobilesidebarHtml + contentWrapper;
+                utility.disableLoader(rootElement, loader)
+                utility.loadUtilityJs();
+                utility.manageSearchResults();
+            }
+        )
 }
 
 constructHomepage(url1, url2, url3, url4, url5, true)
