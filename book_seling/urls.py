@@ -13,7 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-import debug_toolbar
+# import debug_toolbar
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -32,7 +32,7 @@ urlpatterns = [
     path('api/', include('books.urls')),
     path('api/accounts/', include('accounts.urls')),
     path('api/cart/', include('orders.urls')),
-    path('__debug__/', include(debug_toolbar.urls)),
+    # path('__debug__/', include(debug_toolbar.urls)),
 
     path('accounts/reset_password/',
          (auth_views.PasswordResetView.as_view(template_name='passwordReset.html')),
@@ -56,7 +56,7 @@ urlpatterns += [
     path('login', (AnonymousRequired(TemplateView.as_view(template_name='login.html')))),
     path('signup', AnonymousRequired(TemplateView.as_view(template_name='signup.html'))),
     path('', TemplateView.as_view(template_name='index.html')),
-    path('author/<int:pk>', TemplateView.as_view(template_name='author.html')),
+    path('author/<int:pk>', TemplateView.as_view(template_name='author2.html')),
     path('book/<slug>', TemplateView.as_view(template_name='book.html')),
     path('genre/<str>/books', TemplateView.as_view(template_name='genre.html')),
     path('profile', login_required(TemplateView.as_view(template_name='profile.html'))),

@@ -1,3 +1,5 @@
+import time
+
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import *
@@ -184,7 +186,7 @@ class Checkout(APIView):
             with transaction.atomic():
                 in_stock: QuerySet[ProductOrderOrCart] = cart_products_qs.filter(
                     available_stock__gte=F('quantity'))
-                in_stock.select_for_update()
+                in_stock.select_related('deal').select_for_update()
 
                 if not in_stock.exists():
                     return Response(data={
@@ -239,7 +241,7 @@ class OrderListView(ListAPIView):
 
     def get_queryset(self):
         user: User = self.request.user
-        return ProductOrderOrCart.objects.filter(order__user=user)
+        return ProductOrderOrCart.objects.filter(order__user=user).order_by('-order__ordered_on')
 
         # order_obj: QuerySet[Order] = Order.objects.filter(user=user)
         # return order_obj
@@ -253,6 +255,18 @@ class PendingOrder(APIView):
         profile = request.user.profile
         pending_orders = Order.objects.filter(status='pn', productorderorcart__deal__seller=profile)
         pending_orders.update(status=status)
+
+
+class ValidatePromocode(APIView):
+
+    def post(self, request):
+        code = request.data.get('code')
+        if code is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        obj = get_object_or_404(Promocode, code=code)
+        if obj:
+            return Response(status=status.HTTP_200_OK)
 
 
 # todo

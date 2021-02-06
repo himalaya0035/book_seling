@@ -57,13 +57,14 @@ export function toggleButton(mainElementClass, toBeReplacedClass, checkClass, bu
             let url;
             let obj = {}
             const deal_id = ele.id;
+            // console.log(ele)
             if (mainElementClass === 'addToCartBtn' && ele.classList.contains('removeFromCartBtn')) {
                 // item already added to cart , now you want to remove it using the same button
                 url = `/api/cart/remove-from-cart/${deal_id}`;// yha url dekh lena
 
                 ele.classList.toggle('removeFromCartBtn')
             } else if (mainElementClass === 'addToCartBtn') {
-                console.log('67')
+                // console.log('67')
                 url = '/api/cart/all';
                 obj = {
                     deal_id: ele.id
@@ -298,12 +299,9 @@ export function loadOrderTotalJs() {
             alert('Invalid Promocode');
             return false;
         } else {
-            let url = 'https://jsonplaceholder.typicode.com/posts';
+            let url = '/api/cart/validate-promocode';
             let obj = {
-                title: 'foo',
-                body: 'bar',
-                userId: 1,
-                // object here would be - code : promocode.value
+                code: promocode.value
             }
             disableBtn(applyButton)
             const isPostRequestOk = await postJsonData(url, obj);
@@ -477,14 +475,16 @@ export function animateOrderButton() {
                 cart_total: document.getElementById('cartTotal').innerText,
                 discount: document.getElementById('discount').innerText,
                 total_amount: document.getElementById('totalAmt').innerText,
-                quantity: document.getElementById('total-qty').innerText
+                quantity: document.getElementById('total-qty').innerText,
+                // code: document.getElementById('promocodeinput').value
             };
             localStorage.setItem('order-details', JSON.stringify(order_details));
 
             let obj = {
                 shipping_details: {
                     ...JSON.parse(localStorage.getItem('shipping_address'))
-                }
+                },
+                code: document.getElementById('promocodeinput').value
                 // object here would be - code : promocode.value
             }
             const isPostRequestOk = await postJsonData(url, obj);

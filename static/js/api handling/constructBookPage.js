@@ -25,7 +25,7 @@ function constructItemAndDescSection(data) {
             <p class="cartBookName">${data.name}</p>
             
             <div>
-                ${data.author_details.map(author_detail => `<p class="authorName">${author_detail.name}</p>`)}
+                ${data.author_details.map(author_detail => `<p style="cursor:pointer;" class="authorName" onclick="window.location.replace('/author/${author_detail.id}')">${author_detail.name}</p>`)}
             </div>
             <div class="priceRating">
                 <p class="cartBookPrice">Rs ${data.lowest_price.price} ( <a href="#" class="myBtn" style="text-decoration:none; color:#673AB7;">See All Offers</a> )</p>
@@ -61,6 +61,7 @@ function constructItemAndDescSection(data) {
 
 function constructSimilarBooksSection(data) {
     let similarBooks = "";
+    data = data.filter(el => el.ISBN !== bookID)
     for (let i = 0; i < data.length; i++) {
 
         similarBooks +=
@@ -130,12 +131,14 @@ async function contsructBookPage(bookDataUrl, similarBooksUrl) {
         NameOfUser = 'Guest';
     }
 
-    let booksInfoAndDescHtml = await constructSection(bookDataUrl, constructItemAndDescSection);
-    let similarBooksSectionHtml = await constructSection(similarBooksUrl, constructSimilarBooksSection);
-    let allOffersHtml = await constructSection(`/api/cart/deals/${bookID}`, constructAllOffers)
+    let booksInfoAndDescHtml = constructSection(bookDataUrl, constructItemAndDescSection);
+    let similarBooksSectionHtml = constructSection(similarBooksUrl, constructSimilarBooksSection);
+    let allOffersHtml = constructSection(`/api/cart/deals/${bookID}`, constructAllOffers)
     let mobilesidebarHtml = constructSidebar(isAuthenticated, NameOfUser); // is function ko phle component.js me check krle, tab arguements jo diye wo smj jayega
     let topBarHtml = constructTopBar("Book", "/", "/cart"); // jo bhi django ke according link ho wo daal diyo
-    let offersModal = `
+    Promise.all([booksInfoAndDescHtml, similarBooksSectionHtml, allOffersHtml])
+        .then(value => {
+            let offersModal = `
     <div id="myModal" class="modal">
 
     <!-- Modal content -->
@@ -146,7 +149,7 @@ async function contsructBookPage(bookDataUrl, similarBooksUrl) {
         <span class="close">&times;</span>
         </div>
         <div class="modal-body">
-         ${allOffersHtml}
+         ${value[2]}
         </div>
         
     </div>
@@ -154,18 +157,19 @@ async function contsructBookPage(bookDataUrl, similarBooksUrl) {
     </div>
    `
 
-    contentWrapper = `<div class="contentWrapper"> ${topBarHtml} ${booksInfoAndDescHtml} ${similarBooksSectionHtml}</div>`;
-    rootElement.innerHTML = mobilesidebarHtml + contentWrapper + offersModal;
+            contentWrapper = `<div class="contentWrapper"> ${topBarHtml} ${value[0]} ${value[1]}</div>`;
+            rootElement.innerHTML = mobilesidebarHtml + contentWrapper + offersModal;
 
-    utility.disableLoader(rootElement, loader);
+            utility.disableLoader(rootElement, loader);
 
-    utility.loadUtilityJs();
-    utility.manageBookNameLength()
-    utility.manageAboutSection(bookName);
-    utility.addDealToCart();
-    utility.toggleButton("bookmark", "fa-bookmark", "fa-bookmark-o", "Bookmarked", "Bookmark");
-    utility.toggleButton("addToCartBtn", "fa-check", "fa-cart-plus", "Added", "Add to Cart");
-    utility.loadAccountModalJs();
+            utility.loadUtilityJs();
+            utility.manageBookNameLength()
+            utility.manageAboutSection(bookName);
+            utility.addDealToCart();
+            utility.toggleButton("bookmark", "fa-bookmark", "fa-bookmark-o", "Bookmarked", "Bookmark");
+            utility.toggleButton("addToCartBtn", "fa-check", "fa-cart-plus", "Added", "Add to Cart");
+            utility.loadAccountModalJs();
+        })
 }
 
 contsructBookPage(bookDataURL, similarBookDataURL, true)

@@ -1,5 +1,5 @@
 from django.core.cache import cache
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django_filters.rest_framework import DjangoFilterBackend
@@ -83,7 +83,8 @@ class GetRecommendedBooks(APIView):
 
 class BestSellerView(ListAPIView):
     serializer_class = BookIconSerializer
-    queryset = Book.objects.order_by('-date_created').filter(all_deals__isnull=False).distinct().order_by('-rating')[:9]
+    queryset = Book.objects.order_by('-released_date').filter(all_deals__isnull=False).distinct().order_by('-rating')[
+               :9]
 
     @method_decorator(cache_page(60 * 60))
     def list(self, request, *args, **kwargs):
@@ -150,3 +151,9 @@ class SimilarBookView(ListAPIView):
     def get_queryset(self):
         pk = self.kwargs.get('pk')
         return Book.objects.filter(genre__book__ISBN=pk)
+
+#
+# from django.db import connection
+# def timei():
+#     for k in connection.queries:
+#         print(k['time'])

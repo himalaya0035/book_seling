@@ -11,7 +11,7 @@ def auto_prof_create(sender, instance: User, created, **kwargs):
 
         subject = "Welcome to Bookstore 🤩🤩"
 
-        body = f"Hey {instance.first_name} Welcome to Bookstore 🤩🤩 \n" \
+        body = f"Hey {instance.first_name} Welcome to Bookstore 🤩🤩 \n\n" \
                f"Bookstore is your best source to buy cheap book online, make " \
                f"online book purchase, making us the best book website in India to read book online"
 

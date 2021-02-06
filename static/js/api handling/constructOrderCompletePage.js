@@ -16,7 +16,7 @@ function constructShippingAddress(data) {
     return (
         `
         <div class="shippingAddress">
-                    <p>Deliver To : </p>
+                    <p>Delivering To : </p>
             <p id="name">${obj.name}</p>
             <p id="phoneNo">+91 ${obj.contact_number}</p>
             <p id="email">${obj.email}</p>
@@ -98,7 +98,7 @@ async function constructConfirmOrderPage(urlOne) {
                     <p>Thank you for shopping with us !! 😊</p>
                  </div>
                     <div class="placeOrder" style="display: flex; justify-content: center; margin: 20px 10px 20px 10px;">
-                        <a href="index.html"  style="text-decoration: none; background-color: #673AB7; color: white; padding: 10px; border-radius: 1px solid white; width: 100%; text-align: center; box-shadow: 0px 0px 3px #673AB7;">Continue Shopping</a>
+                        <a href="/"  style="text-decoration: none; background-color: #673AB7; color: white; padding: 10px; border-radius: 1px solid white; width: 100%; text-align: center; box-shadow: 0px 0px 3px #673AB7;">Continue Shopping</a>
                     </div>
                 </div>
     `
@@ -106,8 +106,9 @@ async function constructConfirmOrderPage(urlOne) {
     utility.disableLoader(rootElement, loader);
     utility.loadUtilityJs();
     utility.loadOrderTotalJs();
+    localStorage.clear();
 }
 
 constructConfirmOrderPage("/api/cart/checkout")
-    .then(() => console.log("prmoise resolved"))
+    .then(() => console.log("promise resolved"))
     .catch((err) => console.log(err.message));

@@ -12,7 +12,7 @@ class OrderAdmin(admin.ModelAdmin):
 
 
 class ProductOrderOrCartAdmin(admin.ModelAdmin):
-    list_display = ['__str__', 'quantity', 'available_stock', 'sold_quantity', 'deal_link']
+    list_display = ['__str__', 'is_ordered', 'quantity', 'available_stock', 'sold_quantity', 'deal_link']
 
     class Meta:
         model = models.ProductOrderOrCart
@@ -24,6 +24,11 @@ class ProductOrderOrCartAdmin(admin.ModelAdmin):
 
     deal_link.allow_tags = True
     deal_link.short_description = 'Deal'
+
+    def is_ordered(self, obj: models.ProductOrderOrCart):
+        if obj.order is not None:
+            return '✔'
+        return '❌'
 
     def available_stock(self, obj: models.ProductOrderOrCart):
         return obj.deal.quantity

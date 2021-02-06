@@ -18,6 +18,7 @@ class ProductOrderOrCart(models.Model):
     cart = models.ForeignKey('Cart', on_delete=models.CASCADE, null=True, blank=True)
     order = models.ForeignKey('Order', null=True, on_delete=models.CASCADE, blank=True)
 
+    # is_orderd =
     class Meta:
         unique_together = ('deal', 'cart')
 
@@ -31,6 +32,7 @@ class ProductOrderOrCart(models.Model):
 
         if self.order and self.cart:
             raise ValidationError('product cant be in order and cart at same time')
+
         super(ProductOrderOrCart, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -69,6 +71,9 @@ class Order(models.Model):
     total_amount = models.PositiveIntegerField()
     status = models.CharField(choices=order_status_choices, max_length=20, default='Pending')
     shipping_address = models.ForeignKey(ShippingAddress, null=True, on_delete=models.SET_NULL)
+
+    # class Meta:
+    #     ordering = ['-ordered_on']
 
 
 class Promocode(models.Model):
