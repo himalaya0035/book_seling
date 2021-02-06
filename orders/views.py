@@ -180,7 +180,6 @@ class Checkout(APIView):
             cart__user=user.profile).annotate(
             available_stock=Sum('deal__quantity'))
 
-        #  available_stock__gte => available_stock >= ProductOrderOrCart.qty
 
         try:
             with transaction.atomic():

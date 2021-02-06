@@ -42,7 +42,6 @@ class Profile(models.Model):
     def clean(self):
         if self.is_seller:
             if self.firm_name is None or self.bank_account_no is None or self.pan_number is None or self.IFSC is None:
-                print(vars(self))
                 raise ValidationError('firm name / account number / pan number / bank IFSC not found')
 
     def save(self, *args, **kwargs):
